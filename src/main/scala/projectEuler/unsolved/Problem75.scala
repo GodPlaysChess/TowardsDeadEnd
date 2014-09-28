@@ -1,6 +1,7 @@
-package projectEuler
+package projectEuler.unsolved
 
-import UtilMethods.gcd
+import projectEuler.utils.{Problem, UtilMethods}
+import projectEuler.utils.UtilMethods.gcd
 
 /**
  * Created by GlebP on 05-Sep-2014.

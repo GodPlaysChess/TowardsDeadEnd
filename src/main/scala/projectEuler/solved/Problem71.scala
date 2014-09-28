@@ -1,6 +1,6 @@
-package projectEuler
+package projectEuler.solved
 
-import projectEuler.old.BigRational
+import projectEuler.utils.BigRational
 
 /**
  *   428570

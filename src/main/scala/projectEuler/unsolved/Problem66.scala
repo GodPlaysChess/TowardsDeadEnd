@@ -1,4 +1,6 @@
-package projectEuler.old
+package projectEuler.unsolved
+
+import projectEuler.utils.BigRational
 
 import scala.collection.mutable.ListBuffer
 

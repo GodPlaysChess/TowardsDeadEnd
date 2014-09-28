@@ -1,6 +1,7 @@
 package projectEuler
 
 import org.junit.Test
+import projectEuler.utils.UtilMethods
 import UtilMethods._
 
 

@@ -1,9 +1,9 @@
-package projectEuler
+package projectEuler.solved
 
+import projectEuler.utils.Problem
+import projectEuler.utils.UtilMethods._
 
-import scala.collection.mutable.{ArrayBuffer, Map, Set}
-
-import UtilMethods._
+import scala.collection.mutable.{Map, Set}
 
 object Problem72 extends Problem {
   val maxD = 1000000

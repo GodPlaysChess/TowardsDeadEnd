@@ -1,4 +1,4 @@
-package projectEuler;
+package projectEuler.utils;
 
 import java.math.BigInteger;
 import java.util.Arrays;

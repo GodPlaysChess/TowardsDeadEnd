@@ -1,4 +1,4 @@
-package projectEuler.old
+package projectEuler.utils
 
 class Rational(n: Long, d: Long) {
   require(d != 0)

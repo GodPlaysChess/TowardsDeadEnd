@@ -1,4 +1,4 @@
-package projectEuler
+package projectEuler.utils
 
 /**
  * Created by GlebP on 05-Sep-2014.

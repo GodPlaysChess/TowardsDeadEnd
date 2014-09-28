@@ -1,4 +1,15 @@
 name := "TowardsDeadEnd"
 
 version := "1.0"
+
+scalaVersion := "2.10.4"
+
+addCommandAlias("generate-project",
+  ";update-classifiers;update-sbt-classifiers;gen-idea sbt-classifiers")
+
+libraryDependencies += "com.novocode" % "junit-interface" % "0.10" % "test"
+
+libraryDependencies += "commons-codec" % "commons-codec" % "1.6"
+
+libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.6.4"
     

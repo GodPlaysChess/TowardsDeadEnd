@@ -1,4 +1,4 @@
-package projectEuler
+package projectEuler.unsolved
 
 import scala.collection.SortedSet
 

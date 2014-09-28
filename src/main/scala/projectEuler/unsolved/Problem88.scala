@@ -1,6 +1,7 @@
-package projectEuler
+package projectEuler.unsolved
 
-import UtilMethods.primeDecompositionFor
+import projectEuler.utils.Problem
+
 /**
  * Created by fastgleb on 9/7/14.
  */

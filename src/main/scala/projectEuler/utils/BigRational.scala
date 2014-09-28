@@ -1,4 +1,4 @@
-package projectEuler.old
+package projectEuler.utils
 
 class BigRational(n: BigInt, d: BigInt) {
   require(!d.equals(BigInt(0)))

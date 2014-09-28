@@ -1,8 +1,8 @@
-package projectEuler.old
+package projectEuler.unsolved
 
 import scala.collection.mutable.ArrayBuffer
 
-class P104 {
+object P104 {
   private val cache = ArrayBuffer[BigInt](1, 1)
   val fibs: Stream[BigInt] = BigInt(0) #:: BigInt(1) #:: fibs.zip(fibs.tail).map { n => n._1 + n._2}
 

@@ -1,10 +1,8 @@
-package projectEuler
-
-import org.scalatest.junit.AssertionsForJUnit
-
-class SpecialSetTest extends AssertionsForJUnit {
-
-
+//package projectEuler
+//
+//class SpecialSetTest extends AssertionsForJUnit {
+//
+//
 //  @Test def checkFailingSpecialityTest() {
 //    assertFalse(checkSpeciality(SortedSet(1, 2), 2))
 //  }
@@ -28,4 +26,4 @@ class SpecialSetTest extends AssertionsForJUnit {
 //  @Test
 //  def optimumSet6() = assert(SortedSet(11, 18, 19, 20, 22, 25) == findNextOptimumSet(SortedSet(6, 9, 11, 12, 13)))
 
-}
+//}

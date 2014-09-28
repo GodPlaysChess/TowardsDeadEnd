@@ -1,5 +1,4 @@
-package projectEuler
-
+package projectEuler.unsolved
 
 object Problem111 {
   def main(args: Array[String]) {

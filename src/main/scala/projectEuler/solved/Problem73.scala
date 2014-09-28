@@ -1,6 +1,6 @@
-package projectEuler
+package projectEuler.solved
 
-import projectEuler.old.BigRational
+import projectEuler.utils.BigRational
 
 /**
  * First solutions with creating set of BigRationals was taken 102309 msec
