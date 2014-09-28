@@ -13,7 +13,7 @@ object JavaAes {
     chiper.init(Cipher.ENCRYPT_MODE, key)
     val encVal: Array[Byte] = chiper.doFinal(plainText.getBytes)
     val encryptedValue: String = new BASE64Encoder().encode(encVal)
-    return encryptedValue
+    encryptedValue
   }
 
   def decrypt(encryptedText: String): String = {
@@ -21,15 +21,14 @@ object JavaAes {
     val cipher: Cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
     val ivSpec = new IvParameterSpec(iv)
     cipher.init(Cipher.DECRYPT_MODE, key, ivSpec)
-    val decodedValue: Array[Byte] = encryptedText.getBytes() //new BASE64Decoder().decodeBuffer(encryptedText)
+    val decodedValue: Array[Byte] = encryptedText.getBytes //new BASE64Decoder().decodeBuffer(encryptedText)
     val decValue: Array[Byte] = cipher.doFinal(decodedValue)
     val decryptedValue: String = new String(decValue)
-    return decryptedValue
+    decryptedValue
   }
 
   private def generateKey: Key = {
-    val key: Key = new SecretKeySpec(keyValue, algorithm)
-    return key
+   new SecretKeySpec(keyValue, algorithm)
   }
 
   def main(args: Array[String]) {
@@ -45,7 +44,6 @@ object JavaAes {
   val hexKey: String = "140b41b22a29beb4061bda66b6747e14"
   val iv: Array[Byte] = "4ca00ff4c898d61e1edbf1800618fb28".sliding(2,2).map(java.lang.Byte.decode(_).toByte).toArray
   iv.foreach(print(_))
-  println
 //  val iv = new BASE64Decoder().decodeBuffer("4ca00ff4c898d61e1edbf1800618fb28")
 //  println(iv.size + "  " + iv)
 //  val keyValue = new BASE64Decoder().decodeBuffer(hexKey)

@@ -27,34 +27,34 @@ class Decrypter {
     else myxor(key, zeroes + mess, result).toString()
   }
 
-  private def xorStolen(hexOne: String, hexAnother: String): String = {
+  def xorStolen(hexOne: String, hexAnother: String): String = {
     val iterator1 = hexOne.sliding(2, 2)
     val iterator2 = hexAnother.sliding(2, 2)
     val result = new StringBuilder
 
     if (hexAnother.length > hexOne.length) {
       while (iterator1.hasNext) {
-        val i = Integer.toString(Integer.parseInt(iterator1.next, 16) ^
-          Integer.parseInt(iterator2.next, 16), 16)
+        val i = Integer.toString(Integer.parseInt(iterator1.next(), 16) ^
+          Integer.parseInt(iterator2.next(), 16), 16)
 
         if (i.length == 1) result.append("0")
         result.append(i)
 
       }
 
-      while (iterator2.hasNext) result.append(iterator2.next)
+      while (iterator2.hasNext) result.append(iterator2.next())
     }
     else {
       while (iterator2.hasNext) {
-        val i = Integer.toString(Integer.parseInt(iterator1.next, 16) ^
-          Integer.parseInt(iterator2.next, 16), 16)
+        val i = Integer.toString(Integer.parseInt(iterator1.next(), 16) ^
+          Integer.parseInt(iterator2.next(), 16), 16)
 
         if (i.length == 1) result.append("0")
         result.append(i)
 
       }
 
-      while (iterator1.hasNext) result.append(iterator1.next)
+      while (iterator1.hasNext) result.append(iterator1.next())
     }
 
     result.toString()

@@ -3,15 +3,15 @@ package projectEuler.solved
 import projectEuler.utils.Problem
 import projectEuler.utils.UtilMethods._
 
-import scala.collection.mutable.{Map, Set}
+import scala.collection.{immutable, mutable}
 
 object Problem72 extends Problem {
   val maxD = 1000000
-  val primeDecompositions: Map[Int, scala.collection.immutable.Set[Int]] = Map[Int, scala.collection.immutable.Set[Int]]()
+  val primeDecompositions: mutable.Map[Int, immutable.Set[Int]] = mutable.Map[Int, immutable.Set[Int]]()
   //cache them first
-  lazy val dmap: Map[Int, Set[Int]] = (2 to maxD).foldLeft(Map[Int, Set[Int]]())((map, x) => map += x -> Set[Int]())
+  lazy val dmap: mutable.Map[Int, mutable.Set[Int]] = (2 to maxD).foldLeft(mutable.Map[Int, mutable.Set[Int]]())((map, x) => map += x -> mutable.Set[Int]())
 
-  def solve() = {
+  def solve = {
     val c = speedOfLight()
     println(c)
   }

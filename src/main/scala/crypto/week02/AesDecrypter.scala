@@ -4,7 +4,7 @@ import crypto.week01.Decrypter
 
 class AesDecrypter {
   val decrypter = new Decrypter
-  //IV 16 bytes random
+  // IV 16 bytes random
   // AES key
   // cypherText
 

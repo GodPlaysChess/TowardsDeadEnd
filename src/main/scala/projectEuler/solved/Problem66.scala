@@ -1,4 +1,4 @@
-package projectEuler.unsolved
+package projectEuler.solved
 
 import projectEuler.utils.BigRational
 

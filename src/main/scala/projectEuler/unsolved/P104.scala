@@ -31,7 +31,7 @@ object P104 {
     else false
   }
 
-  def solve {
+  def solve() {
     var n = 0
     var number = BigInt(0)
     do {
