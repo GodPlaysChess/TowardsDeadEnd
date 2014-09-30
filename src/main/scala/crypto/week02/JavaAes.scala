@@ -21,7 +21,7 @@ object JavaAes {
     val cipher: Cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
     val ivSpec = new IvParameterSpec(iv)
     cipher.init(Cipher.DECRYPT_MODE, key, ivSpec)
-    val decodedValue: Array[Byte] = encryptedText.getBytes //new BASE64Decoder().decodeBuffer(encryptedText)
+    val decodedValue: Array[Byte] = hexStringToByteArray(encryptedText)
     val decValue: Array[Byte] = cipher.doFinal(decodedValue)
     val decryptedValue: String = new String(decValue)
     decryptedValue
@@ -31,26 +31,21 @@ object JavaAes {
    new SecretKeySpec(keyValue, algorithm)
   }
 
+  def hexStringToByteArray(s: String): Array[Byte] = {
+    val len = s.length()
+    val data = new Array[Byte](len / 2)
+    (0 until len).by(2).foreach(i =>  data(i / 2) = ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16)).asInstanceOf[Byte])
+    data
+  }
+
   def main(args: Array[String]) {
-    val plainText: String = "Password"
-    val encryptedText: String = encrypt(plainText)
     val decryptedText: String = decrypt("4ca00ff4c898d61e1edbf1800618fb2828a226d160dad07883d04e008a7897ee2e4b7465d5290d0c0e6c6822236e1daafb94ffe0c5da05d9476be028ad7c1d81")
-    System.out.println("Plain Text : " + plainText)
-    System.out.println("Encrypted Text : " + encryptedText)
     System.out.println("Decrypted Text : " + decryptedText)
   }
 
   val algorithm: String = "AES"
   val hexKey: String = "140b41b22a29beb4061bda66b6747e14"
-  val iv: Array[Byte] = "4ca00ff4c898d61e1edbf1800618fb28".sliding(2,2).map(java.lang.Byte.decode(_).toByte).toArray
-  iv.foreach(print(_))
-//  val iv = new BASE64Decoder().decodeBuffer("4ca00ff4c898d61e1edbf1800618fb28")
-//  println(iv.size + "  " + iv)
-//  val keyValue = new BASE64Decoder().decodeBuffer(hexKey)
-//  println(keyValue.size + "  " + keyValue)
+  val iv: Array[Byte] = hexStringToByteArray("4ca00ff4c898d61e1edbf1800618fb28")
   var keyValue: Array[Byte] = hexKey.sliding(2,2).map(Integer.parseInt(_, 16).toByte).toArray
-  keyValue.foreach(print(_))
-//  println(keyValue + " key")
-
 
 }
