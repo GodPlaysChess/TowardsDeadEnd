@@ -3,16 +3,8 @@ package crypto.week02
 import java.security.Key
 import javax.crypto.Cipher
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
-
+  //TODO Implement PKCSPadding yourself
 object JavaAes {
-//  def encrypt(plainText: String): String = {
-//    val key: Key = generateKey
-//    val chiper: Cipher = Cipher.getInstance(algorithm)
-//    chiper.init(Cipher.ENCRYPT_MODE, key)
-//    val encVal: Array[Byte] = chiper.doFinal(plainText.getBytes)
-//    val encryptedValue: String = new BASE64Encoder().encode(encVal)
-//    encryptedValue
-//  }
 
   def decrypt(encryptedText: String, iv: Array[Byte], keyValue: Array[Byte]): String = {
     val key: Key = generateKey(keyValue)
@@ -37,15 +29,18 @@ object JavaAes {
   }
 
   private def generateKey(keyValue: Array[Byte]): Key = {
-   new SecretKeySpec(keyValue, algorithm)
+    new SecretKeySpec(keyValue, "AES")
   }
 
+  /* This is stolen implementation, but mine is apparently better */
   def hexStringToByteArray(s: String): Array[Byte] = {
     val len = s.length()
     val data = new Array[Byte](len / 2)
-    (0 until len).by(2).foreach(i =>  data(i / 2) = ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16)).asInstanceOf[Byte])
+    (0 until len).by(2).foreach(i => data(i / 2) = ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16)).asInstanceOf[Byte])
     data
   }
+
+  def getKeyValue(key: String): Array[Byte] = key.sliding(2, 2).map(Integer.parseInt(_, 16).toByte).toArray
 
   def main(args: Array[String]) {
     val m1 = "4ca00ff4c898d61e1edbf1800618fb2828a226d160dad07883d04e008a7897ee2e4b7465d5290d0c0e6c6822236e1daafb94ffe0c5da05d9476be028ad7c1d81"
@@ -66,12 +61,7 @@ object JavaAes {
     val decryptedText2: String = decrypt(m2, iv2, key1)
     System.out.println("Decrypted Text : " + decryptedText.drop(16))
     System.out.println("Decrypted Text2 : " + decryptedText2.drop(16))
-    System.out.println("Decrypted Text3 : " + decCtr(m3, iv3, key3).drop(16))
-    System.out.println("Decrypted Text4 : " + decCtr(m4, iv4, key3).drop(16))
+    System.out.println("Decrypted Text3 : " + decCtr(m3.drop(32), iv3, key3))
+    System.out.println("Decrypted Text4 : " + decCtr(m4.drop(32), iv4, key3))
   }
-
-  val algorithm: String = "AES"
-
-  def getKeyValue(key: String): Array[Byte] = key.sliding(2,2).map(Integer.parseInt(_, 16).toByte).toArray
-
 }
