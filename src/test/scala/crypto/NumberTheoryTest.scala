@@ -1,6 +1,6 @@
 package crypto
 
-import crypto.week05.NumberTheory
+import crypto.week05.NumberTheory._
 import org.junit.Test
 
 /**
@@ -9,11 +9,11 @@ import org.junit.Test
 class NumberTheoryTest {
 
   @Test
-  def dLog(): Unit = {
-    assert(NumberTheory.dLog(17, 9, 4) == BigInt(6))
-    assert(NumberTheory.dLog(17, 3, 2) == BigInt(14))
-    assert(NumberTheory.dLog(11, 6, 6) == BigInt(1))
-    assert(NumberTheory.dLog(119, 9, 4) == BigInt(14))
+  def dLogtest(): Unit = {
+    assert(dLog(4, 9, 17) == BigInt(6), "actual: " + dLog(17, 9, 4))
+    assert(dLog(2, 3, 17) == BigInt(14))
+    assert(dLog(6, 6, 11) == BigInt(1))
+    assert(dLog(4, 13, 121) == BigInt(12), "actual: " + dLog(4, 13, 121))
   }
 
 
