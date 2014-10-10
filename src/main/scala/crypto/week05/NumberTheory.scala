@@ -40,7 +40,8 @@ object NumberTheory {
       if (table.contains(gB.modPow(x, p))) {
         val badLog: BigInt = x * B + table(gB.modPow(x, p))
         return badLog
-
+        // x = 787046
+        // x1 = 357984
       }
     })
 
