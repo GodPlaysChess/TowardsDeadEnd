@@ -15,16 +15,7 @@ object NumberTheory {
     val p1 = BigInt(121)
     val g1 = BigInt(13)
     val h1 = BigInt(4)
-//        for (h <- 1 until 11) println("Dlog2(" + h + ") = " + dLog(h, 2, 11))
-//        for (h <- 1 until 11) println("Dlog2(" + h + ") = " + BigInt(h).modInverse(11))
     println(dLog(h, g, p))
-//    println(g1.modPow(38, p1) - h1)
-//    println(g1.modPow(14, p1) - h1)
-    //    println(dLog(13, 3, 17))
-    //    println(dLog(2, 2, 11))
-    //    println(ord(2, 11))
-    //    println(ord(2, 35))
-    //        println(ord(g, p))
   }
 
 
