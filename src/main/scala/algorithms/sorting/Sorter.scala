@@ -1,5 +1,7 @@
 package algorithms.sorting
 
+import datastructures.MaxHeap
+
 /**
  * Various sort algorithms.
  * For initial simplicity, all of them are sorting array of Integers.
@@ -11,30 +13,47 @@ package algorithms.sorting
 object Sorter {
 
   /**
-   * O(N&#94;2) / O(N)
-   * fuck, this is boring :).
-   * Probably I'll just skip this part and start with more sophisticated algorithms ;)
+   * O(N&#94;2) / O(1)
    */
-  def insertsort(ints: Array[Int]): Array[Int] = {
-    val result = new Array[Int](ints.size)
-    while (ints.size > 0) {
-      val max = findMax(ints)
-      result.update(ints.size - 1, max._2)
-      ints diff Array(max._1)
+  def insertsort(toSort: Array[Int]): Array[Int] = {
+    for (i <- 1 to toSort.length - 1) {
+      var j = i
+      while (j > 0 && toSort(j - 1) > toSort(j)) {
+        swap(j, j - 1, toSort)
+        j -= 1
+      }
     }
-
-
+    toSort
   }
 
-  def bubblesort(ints: Array[Int]): Array[Int] = ???
-
-
-  def heapsort(shuffled: Array[Int]): Array[Int] = {
-    ???
+  /**
+   * O(N&#94;2) / O(1)
+   */
+  def bubblesort(toSort: Array[Int]): Array[Int] = {
+    for (i <- toSort.length - 1  to 1 by -1) {
+      for (j <- 1 to i) {
+        if (toSort(j) < toSort(j - 1)) swap(j, j - 1, toSort)
+      }
+    }
+    toSort
   }
 
   def mergesort(shuffled: Array[Int]): Array[Int] = {
     ???
+  }
+
+
+  def heapsort(shuffled: Array[Int]): Array[Int] = {
+    val heap = new MaxHeap(shuffled)
+    heap.sort()
+    heap.asArray
+  }
+
+
+  private def swap(i: Int, j: Int, array: Array[Int]): Unit = {
+    val t = array(i)
+    array(i) = array(j)
+    array(j) = t
   }
 
   // O(N) / O(1)

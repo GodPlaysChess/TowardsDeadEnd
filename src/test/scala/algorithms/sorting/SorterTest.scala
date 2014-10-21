@@ -5,11 +5,13 @@ import org.junit.{Test, Before}
 /**
  * Created by GlebP on 17-Oct-2014.
  */
-class SorterTest(var shuffled: Array[Int]) {
+class SorterTest() {
+
+  var shuffled: Array[Int] = null
 
   @Before
   def setUp() = {
-    shuffled = Array(1, 2, 3)
+    shuffled = Array(2, 1, 3, 5, 7, 12, -2)
   }
 
 
@@ -22,12 +24,14 @@ class SorterTest(var shuffled: Array[Int]) {
   @Test
   def bubbleSort() = {
     val sorted = Sorter.bubblesort(shuffled)
+    println(sorted.toList)
     assertSorted(sorted)
   }
 
   @Test
   def insertSort() = {
     val sorted = Sorter.insertsort(shuffled)
+    print(sorted.toList)
     assertSorted(sorted)
   }
 
