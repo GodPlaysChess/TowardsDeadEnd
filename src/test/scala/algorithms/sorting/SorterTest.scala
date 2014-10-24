@@ -24,14 +24,19 @@ class SorterTest() {
   @Test
   def bubbleSort() = {
     val sorted = Sorter.bubblesort(shuffled)
-    println(sorted.toList)
     assertSorted(sorted)
   }
 
   @Test
   def insertSort() = {
     val sorted = Sorter.insertsort(shuffled)
-    print(sorted.toList)
+    assertSorted(sorted)
+  }
+
+  @Test
+  def heapSort() = {
+    val sorted = Sorter.heapsort(shuffled)
+    println(sorted.toList)
     assertSorted(sorted)
   }
 
