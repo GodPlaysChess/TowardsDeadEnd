@@ -2,6 +2,8 @@ package algorithms.sorting
 
 import datastructures.MaxHeap
 
+import scala.collection.mutable.ListBuffer
+
 /**
  * Various sort algorithms.
  * For initial simplicity, all of them are sorting array of Integers.
@@ -39,7 +41,27 @@ object Sorter {
   }
 
   def mergesort(shuffled: Array[Int]): Array[Int] = {
-    ???
+    def merge(sortedOne: Array[Int], sortedAnother: Array[Int]): Array[Int] = {
+      val result = new Array[Int](sortedOne.length + sortedAnother.length)
+      var i = 0
+      var j = 0
+      while (i + j < result.length) {
+        if (i < sortedOne.length && (j == sortedAnother.length || sortedOne(i) < sortedAnother(j))) {
+          result(i + j) = sortedOne(i)
+          i += 1
+        } else {
+          result(i + j) = sortedAnother(j)
+          j += 1
+        }
+      }
+      result
+    }
+
+    if (shuffled.length < 2) shuffled
+    else {
+      val (s1, s2) = shuffled.splitAt(shuffled.length / 2)
+      merge(mergesort(s1), mergesort(s2))
+    }
   }
 
   def heapsort(shuffled: Array[Int]): Array[Int] = {
