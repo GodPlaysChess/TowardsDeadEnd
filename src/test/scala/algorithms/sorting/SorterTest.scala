@@ -14,6 +14,17 @@ class SorterTest() {
     shuffled = Array(2, 1, 3, 5, 7, 12, -2)
   }
 
+  @Test
+  def quicksort = {
+    val sorted = Sorter.quicksort(shuffled.toList)
+    assertSorted(sorted.toArray)
+  }
+
+  @Test
+  def primiteivequicksort = {
+    val sorted = Sorter.quicksort(shuffled)
+    assertSorted(sorted.toArray)
+  }
 
   @Test
   def mergeSort() = {
@@ -36,7 +47,6 @@ class SorterTest() {
   @Test
   def heapSort() = {
     val sorted = Sorter.heapsort(shuffled)
-    println(sorted.toList)
     assertSorted(sorted)
   }
 

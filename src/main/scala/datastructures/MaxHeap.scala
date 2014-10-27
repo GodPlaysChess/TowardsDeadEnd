@@ -26,7 +26,7 @@ class MaxHeap(val elements: Array[Int]) {
   val length: Int = elements.length
 
   //constructor to make the heap
-  ((elements.length - 1) / 2)  to 0 by -1 foreach heapify
+  ((elements.length - 1) / 2) to 0 by -1 foreach heapify
 
 
   def parent(nodeNumber: Int) = nodeNumber >> 1
@@ -72,19 +72,35 @@ class MaxHeap(val elements: Array[Int]) {
     }
   }
 
-  /**
-   * All of the following operations run in O(lg n) time
-   */
-  def insert(element: Int) = ???
+  def insert(element: Int) = {
+    size += 1
+    elements(size) = Int.MinValue
+    increaseKey(size, element)
+  }
 
-  def extractMax: Int = ???
+  // O(lg(n))
+  def extractMax: Int = {
+    if (size < 1) throw new Error("heap underflow")
+    val max = elements(0)
+    elements(0) = elements.last
+    size -= 1
+    heapify(0)
+    max
+  }
 
-  def increaseKey = ???
+  def increaseKey(i: Int, elem: Int) = {
+    if (elem < elements(i)) throw new Error("heap underflow")
+    elements(i) = elem
+    var k = i
+    while (k > 0 && elements(parent(k)) < elements(k)) {
+      swap(k, parent(k))
+      k = parent(k)
+    }
+  }
 
-  def max: Int = ???
+  // O(1)
+  def max: Int = elements(0)
 
-  private def show = println(elements.toList)
-
-
+  override def toString = elements.mkString(" ")
 }
 
