@@ -42,7 +42,7 @@ object Sorter {
 
   def mergesort(shuffled: Array[Int]): Array[Int] = {
     def merge(sortedOne: Array[Int], sortedAnother: Array[Int]): Array[Int] = {
-      val result = new Array[Int](sortedOne.length + sortedAnother.length)
+      val result = new Array[Int](sortedOne.length + sortedAnother.length)  //probably bad cause causes to create additional array
       var i = 0
       var j = 0
       while (i + j < result.length) {
@@ -125,5 +125,21 @@ object Sorter {
     }
     min
   }
+
+  /**
+   * Assuming that each of n input elements is an integer in a range of 0-k, where k = O(n)
+   * In other words, input is an Array of ()
+   */
+  def countingSort(toSort: Array[Int]): Array[Int] = {
+
+    val length: Int = toSort.length
+    val result = new Array[Int](length)
+    val temp = new Array[Int](toSort.length)
+    (0 until length).foreach(i => temp(i) = temp(i) + 1)
+
+
+  }
+
+
 
 }
