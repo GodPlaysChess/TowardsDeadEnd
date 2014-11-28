@@ -136,9 +136,42 @@ object Sorter {
     (1 to maxElements).foreach(i => temp(i) += temp(i - 1)) // temp contains the number of elements <= i
     toSort.reverseIterator foreach (elem => {
       result(temp(elem) - 1) = elem
-      temp(elem) = temp(elem) - 1
+      temp(elem) -= 1
     })
     result
+  }
+
+  /**
+   * @param toSort array of integers^*^ to sort, each of which contains of
+   * @param d digits
+   * @return sorted array
+   *         Given n d-digit numbers where each digit can take up to k possible values, running time is
+   *         Theta(n + k)
+   *         <p>^*^Note. Can be used not necessary on Integers. This simple implementation supports only Integers
+   */
+  def radixSort(toSort: Array[Int], d: Int): Array[Int] = {
+    var result = toSort
+    (1 to d).foreach(d => {
+      result = countingSortOnDigit(result, d)
+    })
+    result
+  }
+
+  def countingSortOnDigit(toSort: Array[Int], digit: Int): Array[Int] = {
+    val length: Int = toSort.length
+    val result = new Array[Int](length)
+    val temp = new Array[Int](10) // temp now contains number of elements equal to i
+    toSort foreach (i => temp(getNthDigit(i, digit)) += 1)
+    (1 to 9) foreach (i => temp(i) += temp(i - 1)) // temp contains the number of elements <= i
+    toSort.reverseIterator foreach (elem => {
+      result(temp(getNthDigit(elem, digit)) - 1) = elem
+      temp(getNthDigit(elem, digit)) -= 1
+    })
+    result
+  }
+
+  private def getNthDigit(number: Int, digit: Int): Int = {
+    (number / math.pow(10, digit - 1).toInt) % 10
   }
 
 

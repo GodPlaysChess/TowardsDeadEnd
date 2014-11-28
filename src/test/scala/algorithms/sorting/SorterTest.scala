@@ -58,6 +58,18 @@ class SorterTest() {
     assertSorted(sorted)
   }
 
+  @Test
+  def countingSortOnDigit() = {
+    val sorted = Sorter.countingSortOnDigit(Array(10, 12, 13, 15, 15, 11, 12, 14), 1)
+    assertSorted(sorted)
+  }
+
+  @Test
+  def radixSort() = {
+    val sorted = Sorter.radixSort(Array(329, 457, 657, 839, 436, 720, 355), 3)
+    assertSorted(sorted)
+  }
+
   private def assertSorted(ints: Array[Int]) =
     ints zip ints.tail foreach (pair => assert(pair._2 >= pair._1))
 
