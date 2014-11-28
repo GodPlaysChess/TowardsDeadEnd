@@ -3,11 +3,11 @@ package datastructures
 /**
  * Created by Gleb on 11/8/2014.
  *
- * Matrix of ints
+ * Matrix of ints. 
  */
 class Matrix(elems: Array[Array[Int]]) {
 
-
+  // Array of Arrays of rows!
   def length = elems.length
 
   def heigth = if (length > 0) elems(0).length else 0
@@ -58,27 +58,19 @@ class Matrix(elems: Array[Array[Int]]) {
   def +(that: Matrix): Matrix = {
     if (length < that.length && heigth < that.heigth) that + this
     else {
- /*     for {
-        zippedrows <- rows.zip(that.rows)
-        zrow <- zippedrows._1 zip zippedrows._2
-        el <- zrow._1 + zrow._2
-      } yield {
-        el
-      }*/
       rows.zip(that.rows).foreach(r => r._1.zip(r._2).map(el => el._1 + el._2))
       this
     }
   }
 
   def combine(a11: Matrix, a12: Matrix, a21: Matrix, a22: Matrix): Matrix = {
-                                                                 ???
-
+    (a11 ++| a12) appendBot (a21 ++| a22)
   }
 
   /**
    * Appends a given matrix to the right
    */
-  def ++-(that: Matrix): Matrix = {
+  def ++|(that: Matrix): Matrix = {
     require(heigth == that.heigth, "Please make sure that matrices have equals height")
     val result = Matrix.ofDim(length + that.length, heigth)
     val resultElems = Array.ofDim(length + that.length, heigth)
@@ -90,11 +82,16 @@ class Matrix(elems: Array[Array[Int]]) {
 
   /**
    * Appends a given matrix to the bottom
+   * If the length of the given matrix and appended matrix are different, then
+   * the smaller matrix is filled with zeroes.
    */
-  def ++|(that: Matrix): Matrix = {
-            ???
+  def appendBot(that: Matrix): Matrix = {
+    /*rows. + that.rows)*/ ???
   }
 
+  /**
+   * Splits the matrix into 4 matrices, preferably of equal size.   
+   */
   private def partition: (Matrix, Matrix, Matrix, Matrix) = {
     val (first, sec) = elems.splitAt(length / 2)
     val (a11, a12) = first.map(row => row.splitAt(row.length / 2))

@@ -2,8 +2,6 @@ package algorithms.sorting
 
 import datastructures.MaxHeap
 
-import scala.collection.mutable.ListBuffer
-
 /**
  * Various sort algorithms.
  * For initial simplicity, all of them are sorting array of Integers.
@@ -42,7 +40,7 @@ object Sorter {
 
   def mergesort(shuffled: Array[Int]): Array[Int] = {
     def merge(sortedOne: Array[Int], sortedAnother: Array[Int]): Array[Int] = {
-      val result = new Array[Int](sortedOne.length + sortedAnother.length)  //probably bad cause causes to create additional array
+      val result = new Array[Int](sortedOne.length + sortedAnother.length) //probably bad cause causes to create additional array
       var i = 0
       var j = 0
       while (i + j < result.length) {
@@ -127,19 +125,21 @@ object Sorter {
   }
 
   /**
-   * Assuming that each of n input elements is an integer in a range of 0-k, where k = O(n)
-   * In other words, input is an Array of ()
+   * Assuming that each of n input elements is an integer in a range of [0 - maxElement), where maxElement = O(n)
+   * O(n) / O(n)
    */
-  def countingSort(toSort: Array[Int]): Array[Int] = {
-
+  def countingSort(toSort: Array[Int], maxElements: Int): Array[Int] = {
     val length: Int = toSort.length
     val result = new Array[Int](length)
-    val temp = new Array[Int](toSort.length)
-    (0 until length).foreach(i => temp(i) = temp(i) + 1)
-
-
+    val temp = new Array[Int](maxElements + 1) // temp now contains number of elements equal to i
+    toSort.foreach(i => temp(i) += 1)
+    (1 to maxElements).foreach(i => temp(i) += temp(i - 1)) // temp contains the number of elements <= i
+    toSort.reverseIterator foreach (elem => {
+      result(temp(elem) - 1) = elem
+      temp(elem) = temp(elem) - 1
+    })
+    result
   }
-
 
 
 }

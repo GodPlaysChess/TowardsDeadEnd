@@ -50,6 +50,14 @@ class SorterTest() {
     assertSorted(sorted)
   }
 
+  @Test
+  def countingSort() = {
+    var sorted = Sorter.countingSort(Array(0, 2, 3, 5, 5, 1, 2, 4), 6)
+    assertSorted(sorted)
+    sorted = Sorter.countingSort(Array(2, 5, 3, 0, 2, 3, 0, 3), 5)
+    assertSorted(sorted)
+  }
+
   private def assertSorted(ints: Array[Int]) =
     ints zip ints.tail foreach (pair => assert(pair._2 >= pair._1))
 

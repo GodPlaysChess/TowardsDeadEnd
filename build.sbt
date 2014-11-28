@@ -2,7 +2,7 @@ name := "TowardsDeadEnd"
 
 version := "1.0"
 
-scalaVersion := "2.10.4"
+scalaVersion := "2.11.4"
 
 addCommandAlias("generate-project",
   ";update-classifiers;update-sbt-classifiers;gen-idea sbt-classifiers")
