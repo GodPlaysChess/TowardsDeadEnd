@@ -15,13 +15,19 @@ class SorterTest() {
   }
 
   @Test
-  def quicksort = {
+  def quicksort() = {
     val sorted = Sorter.quicksort(shuffled.toList)
     assertSorted(sorted.toArray)
   }
 
   @Test
-  def primiteivequicksort = {
+  def qsort() = {
+    val sorted = Sorter.qsort(shuffled.toList)
+    assertSorted(sorted.toArray)
+  }
+
+  @Test
+  def primiteivequicksort() = {
     val sorted = Sorter.quicksort(shuffled)
     assertSorted(sorted.toArray)
   }

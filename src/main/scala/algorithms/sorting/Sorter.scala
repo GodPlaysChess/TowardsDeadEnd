@@ -13,6 +13,7 @@ import datastructures.MaxHeap
 object Sorter {
 
   /**
+   * In-place sort
    * O(N&#94;2) / O(1)
    */
   def insertsort(toSort: Array[Int]): Array[Int] = {
@@ -24,6 +25,21 @@ object Sorter {
       }
     }
     toSort
+  }
+
+  def insertsort(toSort: Array[Float]): Array[Float] = {
+    for (i <- 1 to toSort.length - 1) {
+      var j = i
+      while (j > 0 && toSort(j - 1) > toSort(j)) {
+        swap(j, j - 1, toSort)
+        j -= 1
+      }
+    }
+    toSort
+  }
+
+  def insertsort(toSort: List[Float]): List[Float] = {
+    insertsort(toSort.toArray).toList
   }
 
   /**
@@ -70,15 +86,20 @@ object Sorter {
 
   /**
    * Worst O(n&#94;2), average O(n * log n)
+   * quicksort without pattern matching
    */
   def quicksort(shuffled: List[Int]): List[Int] = {
     if (shuffled.size < 2) return shuffled
     val pivot = shuffled.last
-    val (left, right) = shuffled.partition(_ < pivot)
+    val (left, right) = shuffled partition (_ < pivot)
     quicksort(left).:+(pivot) ::: quicksort(right.init)
   }
 
-  // implemented in a low-level way
+  /**
+   * implemented in declarative way, using just low level operation
+   * @param shuffled
+   * @return
+   */
   def quicksort(shuffled: Array[Int]): Array[Int] = {
     def qs(shuffled: Array[Int], p: Int, r: Int): Array[Int] = {
       if (p < r) {
@@ -104,8 +125,21 @@ object Sorter {
     qs(shuffled, 0, shuffled.length - 1)
   }
 
+  /**
+   * Quicksort in more general form with pattern matching
+   * @param list
+   * @tparam T
+   * @return
+   */
+  def qsort[T <% Ordered[T]](list: List[T]): List[T] = list match {
+    case Nil => Nil
+    case x :: xs =>
+      val (before, after) = xs partition (_ < x)
+      qsort(before) ++ (x :: qsort(after))
+  }
 
-  private def swap(i: Int, j: Int, array: Array[Int]): Unit = {
+
+  private def swap[T](i: Int, j: Int, array: Array[T]): Unit = {
     val t = array(i)
     array(i) = array(j)
     array(j) = t
@@ -157,6 +191,13 @@ object Sorter {
     result
   }
 
+  /**
+   * @param toSort array of integers to be sorted
+   * @param digit the digit, on which, the numbers are sorted. 1 - less significant digit.
+   * @return new STABLE sorted array
+   *         for example [723, 345, 546], 1 -> [345, 546, 723]
+   *         [723, 345, 546], 2 -> [723, 345, 546]
+   */
   def countingSortOnDigit(toSort: Array[Int], digit: Int): Array[Int] = {
     val length: Int = toSort.length
     val result = new Array[Int](length)
@@ -172,6 +213,19 @@ object Sorter {
 
   private def getNthDigit(number: Int, digit: Int): Int = {
     (number / math.pow(10, digit - 1).toInt) % 10
+  }
+
+  /**
+   *
+   * @param toSort, array with uniformly distributed numbers, each in (0,1)
+   * @return
+   */
+  def bucketSort(toSort: Array[Float]): List[Float] = {
+    val length: Int = toSort.length
+    val aux = new Array[List[Float]](length)
+    toSort.foreach(elem => aux(math.ceil(length * elem).toInt) :+= elem)
+    aux.foreach(insertsort)
+    aux.reduce(_ ++ _)
   }
 
 
