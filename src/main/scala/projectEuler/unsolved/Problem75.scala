@@ -12,7 +12,7 @@ import projectEuler.utils.UtilMethods.gcd
  */
 object Problem75 extends Problem {
 
-  val maxL = 1500000//0000 //00 //000//000
+  val maxL = 100//0000 //00 //000//000
 
   override def solve: Unit = {
     val c = smartTraverseThrough()

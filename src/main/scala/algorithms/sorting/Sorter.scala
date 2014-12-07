@@ -2,6 +2,8 @@ package algorithms.sorting
 
 import datastructures.MaxHeap
 
+import scala.reflect.ClassTag
+
 /**
  * Various sort algorithms.
  * For initial simplicity, all of them are sorting array of Integers.
@@ -27,7 +29,7 @@ object Sorter {
     toSort
   }
 
-  def insertsort(toSort: Array[Float]): Array[Float] = {
+  def insertsort[T <% Ordered[T]](toSort: Array[T]): Array[T] = {
     for (i <- 1 to toSort.length - 1) {
       var j = i
       while (j > 0 && toSort(j - 1) > toSort(j)) {
@@ -40,6 +42,12 @@ object Sorter {
 
   def insertsort(toSort: List[Float]): List[Float] = {
     insertsort(toSort.toArray).toList
+  }
+
+  /* functional way For some reason IntelliJ shows error which does not make sense */
+  def insertsort[T <% Ordered[T]](toSort: List[T]): List[T] = {
+    def insert[T <% Ordered[T]](list: List[T], el: T): List[T] = list.takeWhile(_ < el).:+(el).++(list.dropWhile(_ < el))
+    toSort./:(List[T]())(insert)
   }
 
   /**
