@@ -1,7 +1,5 @@
 package algorithms.sorting
 
-import scala.reflect.ClassTag
-
 /**
  * Created by Gleb on 11/29/2014.
  */
@@ -18,12 +16,11 @@ object OrderStatistics {
   private def minAndMax[T <% Ordered[T]](list: List[T], min: T, max: T): (T, T) = list match {
     case Nil => (min, max)
     case x :: Nil => if (x < min) (x, max) else if (x > max) (min, x) else (min, max)
-    case x :: y :: xs => {
+    case x :: y :: xs =>
       val (maxXY, minXY) = if (x > y) (x, y) else (y, x)
       val a = if (maxXY > max) maxXY else max
       val i = if (minXY < min) minXY else min
       minAndMax(xs, a, i)
-    }
   }
 
   def randomizedSelect[T <% Ordered[T]](array: Array[T], i: Int): T = {

@@ -114,7 +114,6 @@ class Matrix(elems: Array[Array[Int]]) {
     def ofDim(n: Int, m: Int) = new Matrix(Array.ofDim[Int](n, m))
 
     def of(elem: Int) = new Matrix(Array(Array(elem)))
-
   }
 
 
