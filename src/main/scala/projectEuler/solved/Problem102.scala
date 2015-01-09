@@ -21,9 +21,7 @@ object Problem102 extends Problem {
   }
 
   def containsOrigin(a: Point, b: Point, c: Point): Boolean = {
-    sameSide(o, a, b, c) &&
-      sameSide(o, b, a, c) &&
-      sameSide(o, c, a, b)
+    sameSide(o, a, b, c) && sameSide(o, b, a, c) && sameSide(o, c, a, b)
   }
 
   def sameSide(p1: Point, p2: Point, a: Point, b: Point): Boolean = {
@@ -33,21 +31,13 @@ object Problem102 extends Problem {
   }
 
   case class Point(x: Int, y: Int) {
-    def -(that: Point): Point = {
-      new Point(x - that.x, y - that.y)
-    }
+    def -(that: Point): Point = Point(x - that.x, y - that.y)
 
-    def +(that: Point): Point = {
-      new Point(x + that.x, y + that.y)
-    }
+    def +(that: Point): Point = Point(x + that.x, y + that.y)
 
-    def *(that: Point): Int = {
-      x * that.x + y * that.y
-    }
+    def *(that: Point): Int = x * that.x + y * that.y
 
-    def x(that: Point): Int = {
-      x * that.y - y * that.x
-    }
+    def x(that: Point): Int = x * that.y - y * that.x
   }
 
 }
