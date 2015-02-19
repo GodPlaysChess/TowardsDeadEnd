@@ -21,4 +21,16 @@ object Problem75a extends Problem {
       (tmp * tmp - i * i, 2 * tmp * i)
     }
 
+
+  private def adasd(table: List[List[String]]): List[(String, String)] = {
+    table.tail.map(studentRow => forAStundent(table.head, studentRow)).flatten
+  }
+
+  private def forAStundent(topics: List[String], studendRow: List[String]): List[(String, String)] = {
+    topics.zip(studendRow).tail.filter(topicmark => topicmark._2.toInt >= 5).map(_._1).map(topic => (studendRow.head, topic))
+  }
+
+  private def studentThema(studentThema: List[(String, String)], student: String, thema: String): Boolean =
+    studentThema.filter(_._1 == student).filter(_._2 == thema).filter(_._2.toInt > 5).isEmpty
+
 }

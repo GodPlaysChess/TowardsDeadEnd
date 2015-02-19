@@ -2,6 +2,7 @@ package algorithms.sorting
 
 import datastructures.MaxHeap
 
+import scala.math.Ordered
 import scala.reflect.ClassTag
 
 /**

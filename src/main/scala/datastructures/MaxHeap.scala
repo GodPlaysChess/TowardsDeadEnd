@@ -9,7 +9,7 @@ import scala.annotation.tailrec
  * Definition:
  * heap[parent(i)] >= heap[i]
  */
-class MaxHeap(val elements: Array[Int]) {
+class MaxHeap(private val elements: Array[Int]) {
 
   def asArray: Array[Int] = elements
 
