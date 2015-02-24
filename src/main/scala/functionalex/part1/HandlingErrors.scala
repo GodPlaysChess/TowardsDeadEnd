@@ -2,6 +2,8 @@ package functionalex.part1
 
 object HandlingErrors {
 
+  /*==== Optional ====*/
+
   def variance(xs: Seq[Double]): Option[Double] =
     mean(xs) flatMap (
       m => mean(xs map (
@@ -31,6 +33,12 @@ object HandlingErrors {
 
   def sequence[A](a: List[Option[A]]): Option[List[A]] =
     traverse(a)(identity)
+
+  /*==== Either ====*/
+
+  def mean(xs: IndexedSeq[Double]): Either[String, Double] =
+    if (xs.isEmpty) Left("mean of empty List!")
+    else Right(xs.sum / xs.length)
 
   def main(args: Array[String]) {
     println(sequence(List(Some(5), Some(6), Some(1))))
