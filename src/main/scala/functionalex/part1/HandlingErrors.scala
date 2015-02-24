@@ -21,8 +21,7 @@ object HandlingErrors {
     } yield f(a, b)
 
   def sequence[A](a: List[Option[A]]): Option[List[A]] = {
-    val acc = List[A]()
-    a.foldLeft(Some(acc): Option[List[A]])((acc, op) => map2(acc, op)((li, v) => li :+ v))
+    a.foldLeft(Some(List[A]()): Option[List[A]])(map2(_, _)(_ :+ _))
   }
 
   def main(args: Array[String]) {
