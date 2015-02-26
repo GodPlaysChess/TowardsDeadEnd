@@ -2,8 +2,7 @@ package functionalex.part1
 
 import scala.annotation.tailrec
 
-object Chapter2 {
-
+object GettingStarted {
   /**
    * write tailrec fib
    */
