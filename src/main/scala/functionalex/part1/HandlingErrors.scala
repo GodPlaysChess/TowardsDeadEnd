@@ -22,7 +22,7 @@ object HandlingErrors {
       b <- ob
     } yield f(a, b)
 
-  def sequence[A](a: List[Option[A]]): Option[List[A]] = {
+  def sequence1[A](a: List[Option[A]]): Option[List[A]] = {
     a.foldLeft(Some(List[A]()): Option[List[A]])(map2(_, _)(_ :+ _))
   }
 
@@ -40,9 +40,19 @@ object HandlingErrors {
     if (xs.isEmpty) Left("mean of empty List!")
     else Right(xs.sum / xs.length)
 
+  def sequenceE[E, A](es: List[Either[E, A]]): Either[E, List[A]] =
+    traverseE(es)(identity)
+
+  def traverseE[E, A, B](as: List[A])(f: A => Either[E, B]): Either[E, List[B]] = {
+    as.foldLeft(Right(List[B]()): Either[E, List[B]])((z, elem) => z.map2(f(elem))(_ :+ _))
+  }
+
+
   def main(args: Array[String]) {
-    println(sequence(List(Some(5), Some(6), Some(1))))
-    println(sequence(List(Some(5), None, Some(1))))
+//    println(sequence(List(Some(5), Some(6), Some(1))))
+//    println(sequence(List(Some(5), None, Some(1))))
+    println(traverseE(List(1, 2, 3, 4, 5))(x => if (x < 4) Right("Hel") else Left(s"The number {$x} is too big ")))
+
   }
 
 
