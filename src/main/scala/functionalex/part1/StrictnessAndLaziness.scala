@@ -12,6 +12,11 @@ object StrictnessAndLaziness {
     println(as.toList)
     println("should be List(2,3,4):  " + as.drop(1).toList)
     println(as.takeWhile1(_ < 3).toList)
+    println("Headoptions")
     println(as.headOption)
+    println(as.headOption1)
+    println(Stream.empty.headOption)
+    println(Stream.empty.headOption1)
+
   }
 }

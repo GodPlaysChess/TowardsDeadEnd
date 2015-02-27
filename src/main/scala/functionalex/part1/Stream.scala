@@ -46,7 +46,7 @@ sealed trait Stream[+A] {
       else Empty)
 
   def headOption1: Option[A] =
-    foldRight()
+    foldRight(None: Option[A])((el, str) => Some(el))
 
 
 }
