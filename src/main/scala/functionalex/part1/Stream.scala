@@ -51,7 +51,7 @@ sealed trait Stream[+A] {
 
   def takeWhile1(p: A => Boolean): Stream[A] =
     foldRight(Stream.empty[A])((el, str) =>
-      if (p(el)) Cons(() => el, () => str)
+      if (p(el)) Stream.cons(el, str)
       else Empty)
 
   def foldRight[B](z: => B)(f: (A, => B) => B): B = this match {
@@ -132,11 +132,11 @@ sealed trait Stream[+A] {
   def scanRight[B](z: => B)(f: (A, => B) => B): Stream[B] =
     tails map (_.foldRight(z)(f))
 
-  //    def append[A](a: => A): Stream[A] = {
-  //      val acc: Stream[A] = Stream.cons(a, Stream.empty)
-  //      foldRight(acc)((el: () => A, z: Stream[A]) => Stream.cons[A](el, z))
-  //    }
-  //
+//  def append[A](a: => A): Stream[A] = {
+//    val acc: Stream[A] = Stream.cons(a, Stream.empty)
+//    foldRight(acc)(Stream.cons[A](_, _))
+//  }
+
 
 }
 
