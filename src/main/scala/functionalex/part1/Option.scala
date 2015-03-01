@@ -34,9 +34,20 @@ sealed trait Option[+A] {
     case _ => self
   }
 
-
   def filter(f: A => Boolean): Option[A] =
     flatMap(x => if (f(x)) self else None)
+
+  def map2[B, C](ob: Option[B])(f: (A, B) => C): Option[C] =
+    for {
+      a <- self
+      b <- ob
+    } yield f(a, b)
+
+  def liftTuple[B](b: Option[B]): Option[(A, B)] = for {
+      oa <- self
+      ob <- b
+    } yield (oa, ob)
+
 
 }
 

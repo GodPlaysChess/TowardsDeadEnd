@@ -34,6 +34,9 @@ object HandlingErrors {
   def sequence[A](a: List[Option[A]]): Option[List[A]] =
     traverse(a)(identity)
 
+
+
+
   /*==== Either ====*/
 
   def mean(xs: IndexedSeq[Double]): Either[String, Double] =
