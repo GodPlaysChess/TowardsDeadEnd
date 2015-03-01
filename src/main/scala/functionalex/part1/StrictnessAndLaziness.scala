@@ -67,5 +67,14 @@ object StrictnessAndLaziness {
     println(bs.zipAll(as).take(3).toList)
     println(bs.zipAll(as).take(6).toList)
 
+    println("starts with\n")
+    println(as.startsWith(bs))
+    println(as.startsWith(Stream(1, 2)))
+
+    println(as.tails.map(_.toList).toList)
+
+    println(Stream(1,2,3).scanRight(0)(_ + _).toList)
+    println(Stream(1,2,3).exists(_ == 7))
+
   }
 }
