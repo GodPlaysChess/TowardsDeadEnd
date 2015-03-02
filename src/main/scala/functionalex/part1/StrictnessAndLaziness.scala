@@ -37,7 +37,7 @@ object StrictnessAndLaziness {
     println(as.flatMap(a => Stream(a, a)).toList)
 
     println("recursuve streams")
-    lazy val ones: Stream[Int] = Stream.cons(1, ones) // did not work out??
+    lazy val ones: Stream[Int] = Stream.cons(1, ones)
     println(ones.take(5).toList)
     println(Stream.from1(5).take(5))
 
