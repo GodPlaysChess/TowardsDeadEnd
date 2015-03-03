@@ -17,6 +17,27 @@ trait RNG {
       (f(a), rng2)
     }
 
+  def map2[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+    rng => {
+      val (a, rng1) = ra(rng)
+      val (b, rng2) = rb(rng1)
+      (f(a, b), rng2)
+    }
+
+  def both[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] =
+    map2(ra, rb)((_, _))
+
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = fs match {
+    case Nil => rng => (Nil, rng)
+    case x :: xs => rng => {
+      val (a, rng1) = x(rng)
+      fs.foldLeft(List(a), rng1)((li, rand) => {
+        val (an, rngn) = rand(li._2)
+        (an +: li._1, rngn)
+      })
+    }
+  }
+
   def nonNegativeInt(rng: RNG): (Int, RNG) = {
     val (a, r) = rng.nextInt
     if (a == Int.MinValue) (Int.MaxValue, r)
@@ -27,19 +48,11 @@ trait RNG {
     map(nonNegativeInt)(i => i - i % 2)
 
   def double: Rand[Double] = {
-    map(nonNegativeInt)(_.toDouble/Int.MaxValue)
+    map(nonNegativeInt)(_.toDouble / Int.MaxValue)
   }
 
-//  def double(rng: RNG): (Double, RNG) = {
-//    val (a, r) = nonNegativeInt(rng)
-//    (a.toDouble / Int.MaxValue, r)
-//  }
-
-  def intDouble(rng: RNG): ((Int, Double), RNG) = {
-    val (i, r1) = rng.nextInt
-    val (d, r2) = double(r1)
-    ((i, d), r2)
-  }
+  def intDouble(rng: RNG): Rand[(Int, Double)] =
+    both(int, double)
 
   def doubleInt(rng: RNG): ((Double, Int), RNG) = {
     val (d, r1) = double(rng)
@@ -54,7 +67,7 @@ trait RNG {
     ((d1, d2, d3), r3)
   }
 
-  def ints(count: Int)(rng: RNG): (List[Int], RNG) = {
+  def ints(count: Int): (List[Int], RNG) = {
     def innerInts(c: Int, l: List[Int], rng: RNG): (List[Int], RNG) = {
       if (c == 0) (l, rng)
       else {
@@ -62,8 +75,12 @@ trait RNG {
         innerInts(c - 1, i :: l, r)
       }
     }
-    innerInts(count, List.empty, rng)
+    innerInts(count, List.empty, this)
   }
+
+  def ints1(count: Int): (List[Int], RNG) =
+    sequence(List.fill(count)(int))(this)
+
 }
 
 case class SimpleRNG(seed: Long) extends RNG {
