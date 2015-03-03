@@ -27,13 +27,11 @@ trait RNG {
   def both[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] =
     map2(ra, rb)((_, _))
 
-  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = fs match {
-    case Nil => rng => (Nil, rng)
-    case x :: xs => rng => {
-      val (a, rng1) = x(rng)
-      fs.foldLeft(List(a), rng1)((li, rand) => {
-        val (an, rngn) = rand(li._2)
-        (an +: li._1, rngn)
+  def sequence[A](fs: List[Rand[A]]): Rand[List[A]] = {
+    rng => {
+      fs.foldLeft(List.empty[A], rng)((state, rand) => {
+        val (a, rng1) = rand(state._2)
+        (a +: state._1, rng1)
       })
     }
   }
