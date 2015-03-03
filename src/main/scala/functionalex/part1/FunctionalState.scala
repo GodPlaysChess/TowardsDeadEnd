@@ -9,7 +9,7 @@ object FunctionalState {
     r.ints1(0)._1.foreach(println)
 
     r.ints1(5)._1.zip(r.ints(5)._1).foreach(println)
-
+    println(r.nonNegativeLessThan(1)(r))
   }
 
 
