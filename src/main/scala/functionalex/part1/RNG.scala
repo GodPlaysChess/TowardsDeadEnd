@@ -3,6 +3,7 @@ package functionalex.part1
 
 trait RNG {
   type Rand[+A] = RNG => (A, RNG)
+//  type Rand[A] = State[RNG, A]
 
   def nextInt: (Int, RNG)
 
@@ -16,7 +17,7 @@ trait RNG {
     g(a)(rng1)
   }
 
-  def map[A, B](s: Rand[A])(f: A => B): Rand[B] =
+  def map[S, A, B](s: S => (A, S))(f: A => B): S => (B, S) =
     rng => {
       val (a, rng2) = s(rng)
       (f(a), rng2)
@@ -39,7 +40,7 @@ trait RNG {
     } yield f(a, b)
 
   def map2f1[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
-    flatMap(ra)(a => map(rb)(b => f(a,b)))
+    flatMap(ra)(a => mapf(rb)(b => f(a, b)))
 
   def both[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] =
     map2(ra, rb)((_, _))
