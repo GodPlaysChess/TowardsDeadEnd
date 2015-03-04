@@ -33,7 +33,13 @@ trait RNG {
     }
 
   def map2f[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
-    flatMap(ra)(a => rng1 => flatMap(rb)(b => rng2 => (f(a, b), rng2)))
+    for {
+      a <- ra
+      b <- rb
+    } yield f(a, b)
+
+  def map2f1[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+    flatMap(ra)(a => map(rb)(b => f(a,b)))
 
   def both[A, B](ra: Rand[A], rb: Rand[B]): Rand[(A, B)] =
     map2(ra, rb)((_, _))

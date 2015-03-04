@@ -12,9 +12,4 @@ object FunctionalState {
     println(r.nonNegativeLessThan(1)(r))
   }
 
-
-  def tupleMap[A, B, C](t: (A, B))(f: A => C): (C, B) =
-    (f(t._1), t._2)
-
-
 }
