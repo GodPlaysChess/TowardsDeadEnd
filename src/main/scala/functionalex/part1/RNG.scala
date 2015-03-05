@@ -33,11 +33,11 @@ trait RNG {
       (f(a, b), rng2)
     }
 
-  def map2f[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
-    for {
-      a <- ra
-      b <- rb
-    } yield f(a, b)
+//  def map2f[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
+//    for {
+//      a <- ra
+//      b <- rb
+//    } yield f(a, b)
 
   def map2f1[A, B, C](ra: Rand[A], rb: Rand[B])(f: (A, B) => C): Rand[C] =
     flatMap(ra)(a => mapf(rb)(b => f(a, b)))
