@@ -28,7 +28,7 @@ object HandlingErrors {
 
   // map + sequence traverses the list twice. Implement it, that it traverses the list only once
   def traverse[A, B](a: List[A])(f: A => Option[B]): Option[List[B]] = {
-    a.foldLeft(Some(List[B]()): Option[List[B]])((x, y) => map2(x, f(y))(_ :+ _))
+    a.foldLeft(Some(List[B]()): Option[List[B]])((x, y) => map2(x, f(y))(_ :+ _)) // or  _.::(_) append or prepend?
   }
 
   def sequence[A](a: List[Option[A]]): Option[List[A]] =

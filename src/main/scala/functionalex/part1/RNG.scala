@@ -3,7 +3,7 @@ package functionalex.part1
 
 trait RNG {
   type Rand[+A] = RNG => (A, RNG)
-//  type Rand[A] = State[RNG, A]
+//  type Rand[+A] = State[RNG, A]
 
   def nextInt: (Int, RNG)
 

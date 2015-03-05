@@ -34,7 +34,7 @@ case class State[S, +A](run: S => (A, S)) {
    * (a :: acc._1, s1)
    * }))
    */
-  def sequence1[A](fs: List[State[S, A]]): State[S, List[A]] =
+  def sequence[A](fs: List[State[S, A]]): State[S, List[A]] =
     fs.foldLeft[State[S, List[A]]](State(s => (List.empty[A], s))) {
       (acc, state) => acc.map2(state)(_.::(_))
     }
@@ -42,5 +42,6 @@ case class State[S, +A](run: S => (A, S)) {
 }
 
 object State {
-
+  def unit[S, A](a: A): State[S, A] =
+    State(s => (a, s))
 }
