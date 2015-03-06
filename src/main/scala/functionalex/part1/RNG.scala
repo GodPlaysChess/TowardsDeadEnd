@@ -54,6 +54,10 @@ trait RNG {
     }
   }
 
+  // with a fold right we can use :: notation
+  def sequence1[A](fs: List[Rand[A]]): Rand[List[A]] =
+    fs.foldRight(unit(List[A]()))((f, acc) => map2(f, acc)(_ :: _))
+
   def nonNegativeInt(rng: RNG): (Int, RNG) = {
     val (a, r) = rng.nextInt
     if (a == Int.MinValue) (Int.MaxValue, r)

@@ -14,6 +14,3 @@ libraryDependencies += "commons-codec" % "commons-codec" % "1.6"
 libraryDependencies += "org.slf4j" % "slf4j-simple" % "1.6.4"
 
 libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
-
-libraryDependencies += "com.google.guava" % "guava" % "14.0" % "guava14"
-    
