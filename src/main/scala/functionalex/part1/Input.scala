@@ -27,8 +27,8 @@ case class Machine(locked: Boolean, candies: Int, coins: Int) {
 
   /**
    * my solution. Actually I like that better, cause split the logic of act on a certain input
-   * and simulation of several inputs
-   */                                                                                           
+   * and simulation of several inputs. But call a.f(a) is surely redundant.
+   */
   def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = {
     val a = inputs.foldLeft(unit)((m, i) => m.flatMap(_ => act(i)))
     for {
