@@ -1,5 +1,7 @@
 package functionalex.part2
 
+import functionalex.part2.Par.Par
+
 object PurelyFunctionalParallelilism {
   // answer why this is sequential (hint: inline sumL and sumR)
   def sumSequential(ints: IndexedSeq[Int]): Int =
