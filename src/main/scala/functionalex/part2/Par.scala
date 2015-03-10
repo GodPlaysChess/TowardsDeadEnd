@@ -17,6 +17,9 @@ object Par {
 
   def run[A](s: ExecutorService)(a: Par[A]): Future[A] = a(s)
 
+  def map[A, B](pa: Par[A])(f: A => B): Par[B] =
+    map2(pa, unit(()))((a, _) => f(a))
+
   /** def map2[A, B, C](a: Par[A], b: Par[B])(f: (A, B) => C): Par[C] = for {
     * aa <- a
     * bb <- b
@@ -46,10 +49,7 @@ object Par {
     map2(map2(map2(map2(a, b)(g1), c)(g2), d)(g3), e)(g4)
   }
 
-  def map[A, B](pa: Par[A])(f: A => B): Par[B] =
-    map2(pa, unit(()))((a, _) => f(a))
-
-  def paragraphs(ls :List[String])(implicit es: ExecutorService): Int = {
+  def paragraphs(ls: List[String])(implicit es: ExecutorService): Int = {
     val t: Par[Int] = map(parMap(ls)(_.split(' ').size))(_.sum)
     t.apply(es).get
   }
@@ -79,8 +79,32 @@ object Par {
   // map actually DOES stuff, and sequence COMBINES stuff, so I need to change the "sequence" to make "exclude" some values from combination
   def parFilter[A](as: List[A])(f: A => Boolean): Par[List[A]] = {
     val y: Par[List[List[A]]] = parMap(as)(x => if (f(x)) List(x) else List.empty[A]) // this goes parallel
-    map(y)(ll => ll.foldRight(List.empty[A])((l1, l2) => if (l1.isEmpty) l2 else l1.head :: l2)) //is thi sequential?
+    map(y)(ll => ll.foldRight(List.empty[A])((l1, l2) => if (l1.isEmpty) l2 else l1.head :: l2))
   }
+
+  def parFilter1[A](as: List[A])(f: A => Boolean): Par[List[A]] =
+    map(parMap(as)(x => if (f(x)) List(x) else List.empty[A]))(_.flatten)
+
+  def choice[A](cond: Par[Boolean])(t: Par[A], f: Par[A]): Par[A] =
+    flatMap(cond)(if (_) t else f)
+
+  def choiceN[A](n: Par[Int])(choices: List[Par[A]]): Par[A] =
+    flatMap(n)(choices(_))
+
+  def choiceMap[K, V](key: Par[K])(choices: Map[K, Par[V]]): Par[V] =
+    flatMap(key)(choices(_))
+
+  def flatMap[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] =
+    es => choices(run(es)(pa).get)(es)
+
+  def choiceGen[A, B, C](a: A)(f: A => Par[B])(choices: B => Par[C]): Par[C] =
+    es => choices(run(es)(f(a)).get)(es)
+
+  def join[A](a: Par[Par[A]]): Par[A] =
+    es => run(es)(a).get()(es)
+
+  def flatMapWithJoin[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] =
+    join(map(pa)(choices))
 
 
   private case class UnitFuture[A](get: A) extends Future[A] {
