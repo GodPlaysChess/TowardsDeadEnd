@@ -106,6 +106,12 @@ object Par {
   def flatMapWithJoin[A, B](pa: Par[A])(choices: A => Par[B]): Par[B] =
     join(map(pa)(choices))
 
+  def joinWithFlatMap[A](a: Par[Par[A]]): Par[A] =
+    flatMap(a)(x => x)
+
+  def map2withFlatMap[A, B, C](a: Par[A], b: Par[B])(f: (A, B) => C): Par[C] =
+    flatMap(a)(fa => map(b)(fb => f(fa, fb)))
+
 
   private case class UnitFuture[A](get: A) extends Future[A] {
     override def cancel(mayInterruptIfRunning: Boolean): Boolean = false
