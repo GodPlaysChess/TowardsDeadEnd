@@ -1,9 +1,7 @@
 package functionalex.part2
 
-import functionalex.part2.Par.Par
-
 object PurelyFunctionalParallelilism {
-  // answer why this is sequential (hint: inline sumL and sumR)
+ /* // answer why this is sequential (hint: inline sumL and sumR)
   def sumSequential(ints: IndexedSeq[Int]): Int =
     if (ints.size <= 1)
       ints.headOption getOrElse 0
@@ -23,5 +21,5 @@ object PurelyFunctionalParallelilism {
       Par.map2(Par.fork(sum(l)), Par.fork(sum(r)))(_ + _)
     }
 
-
+*/
 }

@@ -1,8 +1,5 @@
-package functionalex.part1
+package functionalex.part2
 
-/**
- * Created by GlebP on 11-Mar-2015.
- */
 trait Prop {
   def check: Boolean
 

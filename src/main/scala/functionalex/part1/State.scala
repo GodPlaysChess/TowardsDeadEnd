@@ -22,11 +22,6 @@ case class State[S, +A](run: S => (A, S)) {
 
   def map2[B, C](sb: State[S, B])(f: (A, B) => C): State[S, C] =
     flatMap(a => sb.map(f(a, _)))
-
-
-
-
-
 }
 
 object State {

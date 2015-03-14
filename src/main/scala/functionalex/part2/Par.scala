@@ -17,7 +17,7 @@ object Par {
 
   def run[A](s: ExecutorService)(a: Par[A]): Future[A] = a(s)
 
-  def map[A, B](pa: Par[A])(f: A => B): Par[B] =
+  def map1[A, B](pa: Par[A])(f: A => B): Par[B] =
     map2(pa, unit(()))((a, _) => f(a))
 
   /** def map2[A, B, C](a: Par[A], b: Par[B])(f: (A, B) => C): Par[C] = for {
@@ -34,20 +34,24 @@ object Par {
       UnitFuture(f(af.get, bf.get))
     }
 
-  def map3[A, B, C, D](a: Par[A], b: Par[B], c: Par[C])(f: (A, B, C) => D): Par[D] = {
-    val (g1, g2) = f.curried
-    map2(map2(a, b)(g1), c)(g2)
-  }
+//  def map3[A, B, C, D](a: Par[A], b: Par[B], c: Par[C])(f: (A, B, C) => D): Par[D] = {
+//    val x: (A) => (B) => (C) => D = f.curried
+//    val (g1, g2) = f.curried
+//    map2(map2(a, b)(g1), c)(g2)
+//  }
+//
+//  def map4[A, B, C, D, E](a: Par[A], b: Par[B], c: Par[C], d: Par[D])(f: (A, B, C, D) => E): Par[E] = {
+//    val (g1, g2, g3) = f.curried
+//    map2(map2(map2(a, b)(g1), c)(g2), d)(g3)
+//  }
+//
+//  def map5[A, B, C, D, E, F](a: Par[A], b: Par[B], c: Par[C], d: Par[D], e: Par[E])(f: (A, B, C, D, E) => F): Par[F] = {
+//    val (g1, g2, g3, g4) = f.curried
+//    map2(map2(map2(map2(a, b)(g1), c)(g2), d)(g3), e)(g4)
+//  }
 
-  def map4[A, B, C, D, E](a: Par[A], b: Par[B], c: Par[C], d: Par[D])(f: (A, B, C, D) => E): Par[E] = {
-    val (g1, g2, g3) = f.curried
-    map2(map2(map2(a, b)(g1), c)(g2), d)(g3)
-  }
-
-  def map5[A, B, C, D, E, F](a: Par[A], b: Par[B], c: Par[C], d: Par[D], e: Par[E])(f: (A, B, C, D, E) => F): Par[F] = {
-    val (g1, g2, g3, g4) = f.curried
-    map2(map2(map2(map2(a, b)(g1), c)(g2), d)(g3), e)(g4)
-  }
+  def map[A, B](pa: Par[A])(f: A => B): Par[B] =
+    map2(pa, unit(()))((a, _) => f(a))
 
   def paragraphs(ls: List[String])(implicit es: ExecutorService): Int = {
     val t: Par[Int] = map(parMap(ls)(_.split(' ').size))(_.sum)
@@ -59,6 +63,9 @@ object Par {
     es.submit(new Callable[A] {
       override def call(): A = a(es).get
     })
+
+  def delay[A](fa: => Par[A]): Par[A] =
+    es => fa(es)
 
   def asyncF[A, B](f: A => B): A => Par[B] =
     a => lazyUnit(f(a))
