@@ -22,6 +22,13 @@ case class State[S, +A](run: S => (A, S)) {
 
   def map2[B, C](sb: State[S, B])(f: (A, B) => C): State[S, C] =
     flatMap(a => sb.map(f(a, _)))
+
+  def map3[B, C, D](sb: State[S, B], sc: State[S, C])(f: (A, B, C) => D): State[S, D] =
+    for {
+      a <- this
+      b <- sb
+      c <- sc
+    } yield f(a, b, c)
 }
 
 object State {
