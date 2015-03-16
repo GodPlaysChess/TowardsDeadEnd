@@ -2,7 +2,7 @@ package functionalex.part2
 
 import functionalex.part1.RNG
 import functionalex.part1.Stream
-import functionalex.part1.Option
+import functionalex.part1.Some
 import functionalex.part2.Prop.{FailedCase, SuccessCount, TestCases}
 
 object Prop {
@@ -29,16 +29,48 @@ object Prop {
   }
 }
 
-case class Prop(run: (TestCases, RNG) => Result)
 
-sealed trait Result {
-  def isFalsified: Boolean
+case class Prop(run: (TestCases, RNG) => Result) {
+
+  //dont' like a pattern matching here. Looks more like a work for a monad.
+  //but how to extract error message without pattern matching?
+  def &&(p: Prop) = Prop((tc, rng) => {
+    val p1r = run(tc, rng)
+    val p2r = p.run(tc, rng)
+    p1r match {
+      case Passed => p2r match {
+        case Passed => Passed
+        case Falsified(f2, s2) => Falsified(f2, s2 + tc)
+      }
+      case Falsified(f1, s1) => p2r match {
+        case Passed => Falsified(f1, s1 + tc)
+        case Falsified(f2, s2) => Falsified(f1 + f2, s2 + s1)
+      }
+    }
+  }
+  )
+
+  def ||(p: Prop) = Prop((tc, rng) => {
+    val p1r = run(tc, rng)
+    val p2r = p.run(tc, rng)
+    p1r match {
+      case Passed => Passed
+      case Falsified(f1, s1) => p2r match {
+        case Passed => Passed
+        case Falsified(f2, s2) => Falsified(f1 + f2, s2 + s1)
+      }
+    }
+  })
 }
 
-case object Passed extends Result {
-  override def isFalsified = false
-}
+  sealed trait Result {
+    def isFalsified: Boolean
+  }
 
-case class Falsified(failure: FailedCase, successes: SuccessCount) extends Result {
-  override def isFalsified = true
-}
+  case object Passed extends Result {
+    override def isFalsified = false
+  }
+
+  case class Falsified(failure: FailedCase, successes: SuccessCount) extends Result {
+    override def isFalsified = true
+  }
