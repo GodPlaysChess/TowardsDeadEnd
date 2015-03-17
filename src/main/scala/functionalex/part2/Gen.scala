@@ -24,6 +24,8 @@ case class Gen[A](sample: State[RNG, A]) {
   def option: Gen[Option[A]] =
     map(Some(_))
 
+  def unsized: SGen[A] = SGen(_ => this)
+
 }
 
 object Gen {
