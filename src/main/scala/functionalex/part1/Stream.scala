@@ -26,7 +26,7 @@ sealed trait Stream[+A] {
     else h() :: t().take(n - 1)
   }
 
-  def take1(n: Int): Stream[A] =
+  def takeS(n: Int): Stream[A] =
     Stream.unfold((this, n))(seed => seed._1 match {
       case Cons(h, t) if seed._2 > 0 => Some((h(), (t(), n - 1)))
       case _ => None

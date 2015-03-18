@@ -51,7 +51,7 @@ object StrictnessAndLaziness {
     println("maps")
     println(as.map(_ + 1).toList)
     println(as.map1(_ + 1).toList)
-    println(as.map1(_ + 1).take1(8).toList)
+    println(as.map1(_ + 1).takeS(8).toList)
 
     println("ZIPS")
     val bs = Stream(9, 8, 7, 6, 5)

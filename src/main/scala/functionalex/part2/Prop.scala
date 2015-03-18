@@ -3,12 +3,13 @@ package functionalex.part2
 import functionalex.part1.RNG
 import functionalex.part1.Stream
 import functionalex.part1.Some
-import functionalex.part2.Prop.{FailedCase, SuccessCount, TestCases}
+import functionalex.part2.Prop.{MaxSize, FailedCase, SuccessCount, TestCases}
 
 object Prop {
   type FailedCase = String
   type SuccessCount = Int
   type TestCases = Int
+  type MaxSize = Int
 
   def randomStream[A](g: Gen[A])(rng: RNG): Stream[A] =
     Stream.unfold(rng)(rng => Some(g.sample.run(rng)))
@@ -18,8 +19,23 @@ object Prop {
       s"generated an exception: ${e.getMessage}\n" +
       s"stack trace:\n ${e.getStackTrace.mkString("\n")}"
 
-  def foraAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop {
-    (n, rng) => randomStream(as)(rng).zipWith(Stream.from(0))((_, _)).take(n).map {
+  def forAll[A](g: SGen[A])(f: A => Boolean): Prop =
+    forAll(g.forSize)(f)
+
+  def forAll[A](g: Int => Gen[A])(f: A => Boolean): Prop = Prop {
+    (max, n, rng) =>
+      val casesPerSize = (n + (max - 1)) / max
+      val props: Stream[Prop] =
+        Stream.from(0).takeS((n min max) + 1).map(i => forAll[A](g(i))(f))
+      val prop: Prop =
+        props.toList.map(p => Prop { (max, _, rng) =>
+          p.run(max, casesPerSize, rng)
+        }).reduce(_ && _)
+      prop.run(max, n, rng)
+  }
+
+  def forAll[A](as: Gen[A])(f: A => Boolean): Prop = Prop {
+    (s, n, rng) => randomStream(as)(rng).zipWith(Stream.from(0))((_, _)).take(n).map {
       case (a, i) => try {
         if (f(a)) Passed else Falsified(a.toString, i)
       } catch {
@@ -30,13 +46,13 @@ object Prop {
 }
 
 
-case class Prop(run: (TestCases, RNG) => Result) {
+case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
 
   //dont' like a pattern matching here. Looks more like a work for a monad.
   //but how to extract error message without pattern matching?
-  def &&(p: Prop) = Prop((tc, rng) => {
-    val p1r = run(tc, rng)
-    val p2r = p.run(tc, rng)
+  def &&(p: Prop) = Prop((s, tc, rng) => {
+    val p1r = run(s, tc, rng)
+    val p2r = p.run(s, tc, rng)
     p1r match {
       case Passed => p2r match {
         case Passed => Passed
@@ -50,9 +66,9 @@ case class Prop(run: (TestCases, RNG) => Result) {
   }
   )
 
-  def ||(p: Prop) = Prop((tc, rng) => {
-    val p1r = run(tc, rng)
-    val p2r = p.run(tc, rng)
+  def ||(p: Prop) = Prop((s, tc, rng) => {
+    val p1r = run(s, tc, rng)
+    val p2r = p.run(s, tc, rng)
     p1r match {
       case Passed => Passed
       case Falsified(f1, s1) => p2r match {
@@ -63,14 +79,14 @@ case class Prop(run: (TestCases, RNG) => Result) {
   })
 }
 
-  sealed trait Result {
-    def isFalsified: Boolean
-  }
+sealed trait Result {
+  def isFalsified: Boolean
+}
 
-  case object Passed extends Result {
-    override def isFalsified = false
-  }
+case object Passed extends Result {
+  override def isFalsified = false
+}
 
-  case class Falsified(failure: FailedCase, successes: SuccessCount) extends Result {
-    override def isFalsified = true
-  }
+case class Falsified(failure: FailedCase, successes: SuccessCount) extends Result {
+  override def isFalsified = true
+}
