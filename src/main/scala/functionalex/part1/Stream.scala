@@ -15,15 +15,24 @@ sealed trait Stream[+A] {
     case Cons(h, t) => Some(t())
   }
 
-  def toList: List[A] = this match {
+  def toListRecursive: List[A] = this match {
     case Empty => Nil
     case Cons(h, t) => h() :: t().toList
   }
 
-  def take(n: Int): List[A] = this match {
-    case Empty => Nil
-    case Cons(h, t) => if (n == 0) Nil
-    else h() :: t().take(n - 1)
+  def toList: List[A] = {
+    @annotation.tailrec
+    def go(s: Stream[A], acc: List[A]): List[A] = s match {
+      case Cons(h,t) => go(t(), h() :: acc)
+      case _ => acc
+    }
+    go(this, List()).reverse
+  }
+
+  def take(n: Int): Stream[A] = this match {
+    case Empty => Stream.empty
+    case Cons(h, t) => if (n == 0) Stream.cons(h(), Stream.empty)
+    else Stream.cons(h(), t().take(n - 1))
   }
 
   def takeS(n: Int): Stream[A] =

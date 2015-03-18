@@ -45,6 +45,10 @@ object Gen {
   def listOfN[A](n: Int, g: Gen[A]): Gen[List[A]] =
     Gen(State.sequence(List.fill(n)(g.sample)))
 
+  def listOf1[A](g: Gen[A]): Gen[List[A]] = listOfN(1, g)
+
+
+
   /**
    * generates ASCII character including special
    */

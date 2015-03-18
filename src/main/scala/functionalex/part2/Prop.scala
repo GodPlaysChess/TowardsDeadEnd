@@ -1,8 +1,6 @@
 package functionalex.part2
 
-import functionalex.part1.RNG
-import functionalex.part1.Stream
-import functionalex.part1.Some
+import functionalex.part1.{SimpleRNG, RNG, Stream, Some}
 import functionalex.part2.Prop.{MaxSize, FailedCase, SuccessCount, TestCases}
 
 object Prop {
@@ -43,6 +41,17 @@ object Prop {
       }
     }.find(_.isFalsified).getOrElse(Passed)
   }
+
+  def run(p: Prop,
+          maxSize: Int = 100,
+          testCases: Int = 100,
+          rng: RNG = SimpleRNG(System.currentTimeMillis)): Unit =
+    p.run(maxSize, testCases, rng) match {
+      case Falsified(msg, n) =>
+        println(s"! Falsified after $n passed tests:\n $msg")
+      case Passed =>
+        println(s"+ OK, passed $testCases tests.")
+    }
 }
 
 
