@@ -54,7 +54,7 @@ object Par {
     map2(pa, unit(()))((a, _) => f(a))
 
   def paragraphs(ls: List[String])(implicit es: ExecutorService): Int = {
-    val t: Par[Int] = map(parMap(ls)(_.split(' ').size))(_.sum)
+    val t: Par[Int] = map(parMap(ls)(_.split(' ').length))(_.sum)
     t.apply(es).get
   }
 

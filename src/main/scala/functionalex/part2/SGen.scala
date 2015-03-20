@@ -22,7 +22,9 @@ case class SGen[A](forSize: Int => Gen[A]) {
  * Generates all possible values of type A.
  * @param f must be a function which generates some Traversable
  * @tparam A
+ *
  */
+//TODO make this smart
 case class EGen[A](f: Traversable[A]) {
 
   /**

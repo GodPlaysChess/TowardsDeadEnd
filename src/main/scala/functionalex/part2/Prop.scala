@@ -55,7 +55,8 @@ object Prop {
     else Falsified(failed.toList.toString(), as.allValues.size - failed.size)
   }
 
-
+//  def forAllPar[A](g: Gen[A])(f: A => Boolean): Prop =
+//    forAll(S ** g)( case (s, a) => f(a)(s).get)
 
   def run(p: Prop,
           maxSize: Int = 100,

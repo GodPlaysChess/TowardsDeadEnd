@@ -26,6 +26,14 @@ case class Gen[A](sample: State[RNG, A]) {
 
   def unsized: SGen[A] = SGen(_ => this)
 
+  def **[B](g: Gen[B]): Gen[(A, B)] =
+    (this map2 g)((_, _))
+
+  def genStringIntFn(g: Gen[Int]): Gen[String => Int] =
+    g map (i => s => s.map(_ + i).sum)
+
+
+
 }
 
 object Gen {
