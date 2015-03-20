@@ -1,7 +1,7 @@
 package functionalex.part2
 
-import functionalex.part1.{SimpleRNG, RNG, Stream, Some}
-import functionalex.part2.Prop.{MaxSize, FailedCase, SuccessCount, TestCases}
+import functionalex.part1.{RNG, SimpleRNG, Some, Stream}
+import functionalex.part2.Prop.{FailedCase, MaxSize, SuccessCount, TestCases}
 
 object Prop {
   type FailedCase = String
@@ -42,6 +42,21 @@ object Prop {
     }.find(_.isFalsified).getOrElse(Passed)
   }
 
+  /**
+   * for now I'll make separate forall for exhaustive genreation.
+   * Of course, later, it should do exhaustive check implicitly for small
+   * domains
+   *
+   *
+   * */
+  def forAllExhaustive[A](as: EGen[A])(f: A => Boolean): Result = {
+    val failed = as.allValues.filter(f)
+    if (failed.isEmpty) Proved
+    else Falsified(failed.toList.toString(), as.allValues.size - failed.size)
+  }
+
+
+
   def run(p: Prop,
           maxSize: Int = 100,
           testCases: Int = 100,
@@ -51,7 +66,14 @@ object Prop {
         println(s"! Falsified after $n passed tests:\n $msg")
       case Passed =>
         println(s"+ OK, passed $testCases tests.")
+      case Proved =>
+        println(s"+ OK, proved property")
     }
+
+  def check(p: => Boolean): Prop = Prop { (_, _, _) =>
+    if (p) Passed else Falsified(" () ", 0)
+  }
+
 }
 
 
@@ -63,12 +85,12 @@ case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
     val p1r = run(s, tc, rng)
     val p2r = p.run(s, tc, rng)
     p1r match {
-      case Passed => p2r match {
-        case Passed => Passed
+      case Passed | Proved => p2r match {
+        case Passed | Proved => Passed
         case Falsified(f2, s2) => Falsified(f2, s2 + tc)
       }
       case Falsified(f1, s1) => p2r match {
-        case Passed => Falsified(f1, s1 + tc)
+        case Passed | Proved => Falsified(f1, s1 + tc)
         case Falsified(f2, s2) => Falsified(f1 + f2, s2 + s1)
       }
     }
@@ -80,8 +102,10 @@ case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
     val p2r = p.run(s, tc, rng)
     p1r match {
       case Passed => Passed
+      case Proved => Proved
       case Falsified(f1, s1) => p2r match {
         case Passed => Passed
+        case Proved => Proved
         case Falsified(f2, s2) => Falsified(f1 + f2, s2 + s1)
       }
     }
@@ -90,6 +114,10 @@ case class Prop(run: (MaxSize, TestCases, RNG) => Result) {
 
 sealed trait Result {
   def isFalsified: Boolean
+}
+
+case object Proved extends Result {
+  override def isFalsified = false
 }
 
 case object Passed extends Result {

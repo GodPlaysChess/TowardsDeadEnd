@@ -23,6 +23,7 @@ object TestClass {
       val zipped = ns.sorted.zip(ns.sorted.tail)
       zipped.forall { case (a, b) => a >= b }
     }
+    run(sortedProp)
   }
 
 }
