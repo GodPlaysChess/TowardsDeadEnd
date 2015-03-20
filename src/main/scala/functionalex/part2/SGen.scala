@@ -6,13 +6,13 @@ package functionalex.part2
 case class SGen[A](forSize: Int => Gen[A]) {
 
   def flatMap[B](f: A => SGen[B]): SGen[B] =
-    SGen(forSize(_).flatMap(x => f(x).forSize(0))) // why 0?
+    SGen(n => forSize(n).flatMap(x => f(x).forSize(n)))
 
   def map[B](f: A => B): SGen[B] =
     SGen(forSize(_).map(f))
 
   def map2[B, C](gb: SGen[B])(f: (A, B) => C): SGen[C] =
-    SGen(forSize(_).map2(gb.forSize(0))(f))
+    SGen(n => forSize(n).map2(gb.forSize(n))(f))
 
 }
 
@@ -23,3 +23,4 @@ object SGen {
   def listOf1[A](g: Gen[A]): SGen[List[A]] =
     SGen(n => Gen.listOfN[A](1 max n, g))
 }
+
