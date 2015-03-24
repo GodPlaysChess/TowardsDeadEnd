@@ -3,6 +3,7 @@ package functionalex.part2
 import functionalex.part1.Either
 
 import scala.language.implicitConversions
+import scala.util.matching.Regex
 
 // for any Char c : run(char(c))(c.toString) == Right(c)
 trait Parsers[ParseError, Parser[+ _]] {
@@ -41,7 +42,8 @@ trait Parsers[ParseError, Parser[+ _]] {
 
   def and[A](value: Parser[A], value1: => Parser[A]): Parser[A]
 
-  def together[A, B](value: Parser[A], value1: Parser[B]): Parser[(A, B)]
+  def together[A, B](pa: Parser[A], pb: Parser[B]): Parser[(A, B)] =
+    pa.flatMap(s => pb.map((s, _)))
 
   // counts given strings
   def count[A](s: Parser[A]): Parser[Int]
@@ -52,18 +54,24 @@ trait Parsers[ParseError, Parser[+ _]] {
   def many1[A](p: Parser[A]): Parser[List[A]] =
     map2(p, many(p))(_ :: _)
 
-  def map[A, B](a: Parser[A])(f: A => B): Parser[B]
+  def map[A, B](a: Parser[A])(f: A => B): Parser[B] =
+    a flatMap(s => succeed(f(s)))
 
   def slice[A](p: Parser[A]): Parser[String]
 
   def map2[A, B, C](p: Parser[A], p2: => Parser[B])(g: (A, B) => C): Parser[C] =
-    (p ** p2) map { case (a, b) => g(a, b)} // (or g.tupled)
+    for {
+      a <- p
+      b <- p2
+    } yield g(a, b)
 
   def listOfN[A](n: Int, p: Parser[A]): Parser[List[A]] =
     if (n == 0) succeed(List())
     else map2(p, listOfN(n - 1, p))(_ :: _)
 
   def flatMap[A, B](p: Parser[A])(f: A => Parser[B]): Parser[B]
+
+  implicit def regex(r: Regex): Parser[String]
 
 
   case class ParserOps[A](p: Parser[A]) {
