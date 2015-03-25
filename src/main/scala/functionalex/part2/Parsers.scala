@@ -33,7 +33,7 @@ trait Parsers[ParseError, Parser[+ _]] {
 
   // i dont like the way to use listOfN with various N.
   def zeroOrMore[A](c: Parser[A]): Parser[Int] =
-    slice(many(c)) map (_.size)
+    slice(many(c)) map (_.length)
 
   def oneOrMore[A](c: Parser[A]): Parser[Int]
 
@@ -44,9 +44,6 @@ trait Parsers[ParseError, Parser[+ _]] {
 
   def together[A, B](pa: Parser[A], pb: Parser[B]): Parser[(A, B)] =
     pa.flatMap(s => pb.map((s, _)))
-
-  // counts given strings
-  def count[A](s: Parser[A]): Parser[Int]
 
   def many[A](p: Parser[A]): Parser[List[A]] =
     map2(p, many(p))(_ :: _) or succeed(List())
