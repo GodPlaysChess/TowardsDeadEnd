@@ -78,8 +78,15 @@ object Par {
     sequence(fbs)
   }
 
+  def parMap[A, B](ps: IndexedSeq[A])(f: A => B): Par[IndexedSeq[B]] = fork {
+    sequence(ps.map(asyncF(f)))
+  }
+
   def sequence[A](ps: List[Par[A]]): Par[List[A]] =
     ps.foldRight(unit(List.empty[A]))((par, li) => map2(par, li)(_ :: _))
+
+  def sequence[A](ps: IndexedSeq[Par[A]]): Par[IndexedSeq[A]] =
+    ps.foldRight(unit(IndexedSeq.empty[A]))((par, li) => map2(par, li)(_ +: _))
 
   // this is kinda uses flatMap
   // A => EmptyList or List(A) , then concat

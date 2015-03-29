@@ -29,7 +29,7 @@ trait Parsers[ParseError, Parser[+ _]] {
 
   //don't really get how it should work. Does it have to return only matched fragments?
   //if not, then it always returns the whole messge.
-  def listOfN[A](n: Int, p: Parser[A]): Parser[List[A]]
+//  def listOfN[A](n: Int, p: Parser[A]): Parser[List[A]]
 
   // i dont like the way to use listOfN with various N.
   def zeroOrMore[A](c: Parser[A]): Parser[Int] =
@@ -96,7 +96,7 @@ trait Parsers[ParseError, Parser[+ _]] {
     import functionalex.part1.Right
 
     def equal[A](p1: Parser[A], p2: Parser[A])(in: Gen[String]): Prop =
-      forAll(in)(s => run(p1)(s) == run(p2)(s))
+      forAll(in)(s => self.run(p1)(s) == self.run(p2)(s))
 
     def mapLaw[A](p: Parser[A])(in: Gen[String]): Prop =
       equal(p, p.map(identity))(in)
@@ -105,7 +105,7 @@ trait Parsers[ParseError, Parser[+ _]] {
      * Parser, which succeeds on Any String ('a') should succeed on Any string (s)
      **/
     def succeedLaw[A](in: Gen[(String, String)]): Prop =
-      forAll(in) { case (a, s) => run(succeed(a))(s) == Right(a)}
+      forAll(in) { case (a, s) => self.run(succeed(a))(s) == Right(a)}
 
   }
 

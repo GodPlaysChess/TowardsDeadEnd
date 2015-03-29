@@ -32,7 +32,7 @@ trait Parser[+A] {
 
 }
 
-object Parsers {
+object Parser {
 
   /**
    * Put the value into the parser (alias to pure or unit)
