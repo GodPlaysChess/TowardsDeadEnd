@@ -121,13 +121,12 @@ object Monoids {
    */
   def ordMonoid = new Monoid[Ordering] {
     override def op(a1: Ordering, a2: Ordering): Ordering =
-      if (a1 == a2) a1 else (a1, a2) match {
-      case (Asc(), Eq()) => Asc()
-      case (Eq(), Asc()) => Asc()
-      case (Desc(), Eq()) => Desc()
-      case (Eq(), Desc()) => Desc()
-      case (_, _) => Unordered()
-    }
+      (a1, a2) match {
+        case (s1, s2) if s1 == s2 => s1
+        case (s, Eq()) => s
+        case (Eq(), s) => s
+        case _ => Unordered()
+      }
 
     override def zero: Ordering = Eq()
   }
