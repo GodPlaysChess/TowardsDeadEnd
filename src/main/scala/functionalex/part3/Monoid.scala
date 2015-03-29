@@ -110,7 +110,7 @@ object Monoids {
   }
 
   def isOrdered(seq: IndexedSeq[Int]): Ordering =
-    foldMapV(seq.zip(seq.tail), ordMonoid)(tup => compare(tup._1, tup._2))
+    foldMapV(seq.zip(seq.tail), ordMonoid) { case (t1: Int, t2: Int) => compare(t1, t2)}
 
 
   /**
