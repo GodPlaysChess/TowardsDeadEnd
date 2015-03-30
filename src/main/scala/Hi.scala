@@ -1,12 +1,13 @@
-import crypto.week01.Decrypter
+import functionalex.part3.Monoids
 
 object Hi {
   def main(args: Array[String]) {
-    val dec = new Decrypter
-    println(dec.xor("aa12", "bf"))
-    println(dec.xor("aa12", "bf"))
-    (1 to 100) foreach println
-
+    val seq1 = IndexedSeq(1, 2, 3, 4)
+    val seq2 = IndexedSeq(1, 2, 4, 3)
+    val seq3 = IndexedSeq(4, 3, 2, 1)
+    println(Monoids.isOrdered(seq1))
+    println(Monoids.isOrdered(seq2))
+    println(Monoids.isOrdered(seq3))
 
   }
 

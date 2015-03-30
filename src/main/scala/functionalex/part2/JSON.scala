@@ -1,7 +1,8 @@
 package functionalex.part2
 
-import scala.util.matching.Regex
-
+/**
+ * Created by Gleb on 3/24/2015.
+ */
 trait JSON
 
 object JSON {
@@ -18,19 +19,5 @@ object JSON {
 
   case class JObject(get: Map[String, JSON]) extends JSON
 
-}
-
-class Parser[JSON] {
-  implicit def string(s: String): Parser[String] = ???
-
-  def flatMap(f: JSON => Parser[JSON]): Parser[JSON] = ???
-
-  def or(s2: => Parser[JSON]): Parser[JSON] = ???
-
-  implicit def regex(r: Regex): Parser[String] = ???
-
-  def slice(): Parser[String] = ???
-
-  def succeed(a: JSON): Parser[JSON] = ???
 }
 
