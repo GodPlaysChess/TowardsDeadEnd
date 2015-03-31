@@ -1,5 +1,7 @@
 package functionalex.part3
 
+import functionalex.part1.{Branch, Leaf, Tree}
+
 trait Foldable[F[_]] {
 
   def foldRight[A, B](as: F[A])(z: B)(f: (A, B) => B): B
@@ -52,7 +54,6 @@ object Foldables {
   }
 
   def foldableStream: Foldable[Stream] = new Foldable[Stream] {
-
     override def foldLeft[A, B](as: Stream[A])(z: B)(f: (B, A) => B): B = {
       if (as.isEmpty) z
       else foldLeft(as.tail)(f(z, as.head))(f)
@@ -64,6 +65,23 @@ object Foldables {
     override def foldRight[A, B](as: Stream[A])(z: B)(f: (A, B) => B): B = {
       if (as.isEmpty) z
       else f(as.head, as.tail.foldRight(z)(f))
+    }
+  }
+
+  def foldableTree: Foldable[Tree] = new Foldable[Tree] {
+    override def foldLeft[A, B](as: Tree[A])(z: B)(f: (B, A) => B): B = as match {
+      case Leaf(a) => f(z, a)
+      case Branch(l, r) => foldLeft(r)(foldLeft(l)(z)(f))(f)
+    }
+
+    override def foldMap[A, B](as: Tree[A])(f: (A) => B)(mb: Monoid[B]): B = as match {
+      case Leaf(a) => mb.op(f(a), mb.zero)
+      case Branch(l, r) => mb.op(foldMap(l)(f)(mb), foldMap(r)(f)(mb))
+    }
+
+    override def foldRight[A, B](as: Tree[A])(z: B)(f: (A, B) => B): B = as match {
+      case Leaf(a) => f(a, z)
+      case Branch(l, r) => foldRight(l)(foldRight(r)(z)(f))(f)
     }
   }
 
