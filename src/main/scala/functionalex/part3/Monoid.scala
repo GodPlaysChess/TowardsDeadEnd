@@ -124,6 +124,12 @@ object Monoids {
     }
   }
 
+  def productMonoid[A, B](A: Monoid[A], B: Monoid[B]): Monoid[(A, B)] = new Monoid[(A, B)] {
+    override def op(a1: (A, B), a2: (A, B)): (A, B) = A.op(a1._1, a2._1) -> B.op(a1._2, a2._2)
+
+    override def zero: (A, B) = A.zero -> B.zero
+  }
+
   def compare(a: Int, b: Int): Ordering = {
     if (a > b) Desc()
     else if (a < b) Asc()
@@ -131,8 +137,7 @@ object Monoids {
   }
 
   def isOrdered(seq: IndexedSeq[Int]): Ordering =
-    foldMapV(seq.zip(seq.tail), ordMonoid) { case (t1: Int, t2: Int) => compare(t1, t2)}
-
+    foldMapV(seq.zip(seq.tail), ordMonoid) { case (t1: Int, t2: Int) => compare(t1, t2) }
 
   /**
    *
