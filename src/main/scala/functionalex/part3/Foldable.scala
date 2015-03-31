@@ -13,6 +13,9 @@ trait Foldable[F[_]] {
   def concatenate[A](as: F[A])(m: Monoid[A]): A =
     foldLeft(as)(m.zero)(m.op)
 
+  def toList[A](fa: F[A]): List[A] =
+    foldRight(fa)(List.empty[A])(_ :: _)
+
 }
 
 object Foldables {
@@ -95,6 +98,5 @@ object Foldables {
     override def foldRight[A, B](as: Option[A])(z: B)(f: (A, B) => B): B =
       foldLeft(as)(z)((a, b) => f(b, a))
   }
-
 }
 
