@@ -85,5 +85,16 @@ object Foldables {
     }
   }
 
+  def foldableOption: Foldable[Option] = new Foldable[Option] {
+    override def foldLeft[A, B](as: Option[A])(z: B)(f: (B, A) => B): B =
+      as.map(v => f(z, v)) getOrElse z
+
+    override def foldMap[A, B](as: Option[A])(f: (A) => B)(mb: Monoid[B]): B =
+      foldLeft(as)(mb.zero)((a, b) => mb.op(a, f(b)))
+
+    override def foldRight[A, B](as: Option[A])(z: B)(f: (A, B) => B): B =
+      foldLeft(as)(z)((a, b) => f(b, a))
+  }
+
 }
 
