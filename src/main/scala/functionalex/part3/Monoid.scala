@@ -63,6 +63,27 @@ object Monoids {
     override def zero: (A) => A = x => x
   }
 
+  val wcMonoid: Monoid[WC] = new Monoid[WC] {
+    override def op(a1: WC, a2: WC): WC = (a1, a2) match {
+      case (Part(ls, w1, _), Part(_, w2, rs)) => Part(ls, w1 + w2, rs)
+      case (Part(ls, w1, rs), Stub(r)) => Part(ls, w1, rs + r)
+      case (Stub(l), Part(ls, w2, rs)) => Part(l + ls, w2, rs)
+      case (Stub(l), Stub(r)) => Stub(l + r)
+    }
+
+    override def zero: WC = Stub("")
+  }
+
+  def _countWords(in: String) =
+    foldMapV(in, wcMonoid)(c =>
+      if (c == ' ') Part("", 1, "")
+      else Stub(c.toString)
+    ).count
+
+  // ez implementation ;)
+  def countWords(in: String) =
+    in.par.count(_ == ' ') + 1
+
 
   def monoidLaws[A](m: Monoid[A], gen: Gen[A]): Prop =
     associativity(m)(gen) && transitivity(m)(gen)
