@@ -65,7 +65,7 @@ object Monoids {
 
   val wcMonoid: Monoid[WC] = new Monoid[WC] {
     override def op(a1: WC, a2: WC): WC = (a1, a2) match {
-      case (Part(ls, w1, _), Part(_, w2, rs)) => Part(ls, w1 + w2, rs)
+      case (Part(ls, w1, _), Part(_, w2, rs)) => Part(ls, w1 + w2 + 1, rs)
       case (Part(ls, w1, rs), Stub(r)) => Part(ls, w1, rs + r)
       case (Stub(l), Part(ls, w2, rs)) => Part(l + ls, w2, rs)
       case (Stub(l), Stub(r)) => Stub(l + r)
@@ -76,7 +76,7 @@ object Monoids {
 
   def _countWords(in: String) =
     foldMapV(in, wcMonoid)(c =>
-      if (c == ' ') Part("", 1, "")
+      if (c == ' ') Part("", 0, "")
       else Stub(c.toString)
     ).count
 
@@ -94,7 +94,7 @@ object Monoids {
   )
 
   private def transitivity[A](m: Monoid[A])(in: Gen[A]) = forAll(Gen.listOfN(3, in))(list => {
-    val (a, b, c) = (list(0), list(1), list(2))
+    val (a, b, c) = (list.head, list(1), list(2))
     m.op(a, m.op(b, c)) == m.op(m.op(a, b), c)
   })
 

@@ -10,7 +10,7 @@ object Hi {
     println(Monoids.isOrdered(seq3))
 
     val ex1 = "word"
-    val ex2 = "two words"
+    val ex2 = "t w"
     val ex3 = "three words here"
     val ex4 = "string contains four words"
     val ex5 = "string contains exactly five words"

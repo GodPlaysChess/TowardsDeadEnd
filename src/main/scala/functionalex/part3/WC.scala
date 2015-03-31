@@ -5,8 +5,8 @@ package functionalex.part3
  */
 sealed trait WC {
   def count: Int = this match {
-    case Stub(_) => 1
-    case Part(_, w, _) => w + 1
+    case Stub(c) => if (c == "") 0 else 1
+    case Part(l, w, r) => Stub(l).count + w + Stub(r).count
   }
 }
 
