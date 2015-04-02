@@ -130,6 +130,25 @@ object Monoids {
     override def zero: (A, B) = A.zero -> B.zero
   }
 
+  def functionMonoid[A, B](B: Monoid[B]): Monoid[A => B] = new Monoid[(A) => B] {
+    override def op(a1: (A) => B, a2: (A) => B): (A) => B = a => B.op(a1(a), a2(a))
+
+    override def zero: (A) => B = a => B.zero
+  }
+
+  def bag[A](as: IndexedSeq[A]): Map[A, Int] =
+    foldMapV[A, Map[A, Int]](as, mapMergeMonoid(intAddition))(a => Map(a -> 1))
+
+  def mapMergeMonoid[K, V](V: Monoid[V]): Monoid[Map[K, V]] = new Monoid[Map[K, V]] {
+    def zero = Map[K, V]()
+
+    def op(a: Map[K, V], b: Map[K, V]) =
+      (a.keySet ++ b.keySet).foldLeft(zero) { (acc, k) =>
+        acc.updated(k, V.op(a.getOrElse(k, V.zero),
+          b.getOrElse(k, V.zero)))
+      }
+  }
+
   def compare(a: Int, b: Int): Ordering = {
     if (a > b) Desc()
     else if (a < b) Asc()
@@ -137,7 +156,7 @@ object Monoids {
   }
 
   def isOrdered(seq: IndexedSeq[Int]): Ordering =
-    foldMapV(seq.zip(seq.tail), ordMonoid) { case (t1: Int, t2: Int) => compare(t1, t2) }
+    foldMapV(seq.zip(seq.tail), ordMonoid) { case (t1: Int, t2: Int) => compare(t1, t2)}
 
   /**
    *

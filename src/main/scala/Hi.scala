@@ -21,6 +21,11 @@ object Hi {
     println(Monoids._countWords(ex4))
     println(Monoids._countWords(ex5))
     println(Monoids._countWords(ex6))
+
+    val map1 = Map("A" -> 1)
+    val map2 = Map("A" -> 2, "B" -> 1)
+    println(Monoids.mapMergeMonoid(Monoids.intAddition).op(map1, map2))
+    println(Monoids.bag(Vector("a", "rose", "is", "a", "rose")))
   }
 
 }

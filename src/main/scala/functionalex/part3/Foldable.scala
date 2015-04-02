@@ -19,20 +19,7 @@ trait Foldable[F[_]] {
 }
 
 object Foldables {
-  def foldableList: Foldable[List] = new Foldable[List] {
-    override def foldRight[A, B](as: List[A])(z: B)(f: (A, B) => B): B =
-      foldLeft(as.reverse)(z)((a, b) => f(b, a))
-
-    override def foldLeft[A, B](as: List[A])(z: B)(f: (B, A) => B): B = as match {
-      case Nil => z
-      case x :: xs => foldLeft(xs)(f(z, x))(f)
-    }
-
-    override def foldMap[A, B](as: List[A])(f: (A) => B)(mb: Monoid[B]): B =
-      foldLeft(as)(mb.zero)((b, a) => mb.op(b, f(a)))
-  }
-
-  // taking advantage over splitting of indexed seq
+   // taking advantage over splitting of indexed seq
   def foldableIndexedSeq: Foldable[IndexedSeq] = new Foldable[IndexedSeq] {
     override def foldLeft[A, B](as: IndexedSeq[A])(z: B)(f: (B, A) => B): B = {
       if (as.length == 0) z
@@ -98,5 +85,20 @@ object Foldables {
     override def foldRight[A, B](as: Option[A])(z: B)(f: (A, B) => B): B =
       foldLeft(as)(z)((a, b) => f(b, a))
   }
+
+
+  object ListFoldable extends Foldable[List] {
+    override def foldRight[A, B](as: List[A])(z: B)(f: (A, B) => B): B =
+      foldLeft(as.reverse)(z)((a, b) => f(b, a))
+
+    override def foldLeft[A, B](as: List[A])(z: B)(f: (B, A) => B): B = as match {
+      case Nil => z
+      case x :: xs => foldLeft(xs)(f(z, x))(f)
+    }
+
+    override def foldMap[A, B](as: List[A])(f: (A) => B)(mb: Monoid[B]): B =
+      foldLeft(as)(mb.zero)((b, a) => mb.op(b, f(a)))
+  }
+
 }
 
