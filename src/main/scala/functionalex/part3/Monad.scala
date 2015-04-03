@@ -54,15 +54,49 @@ trait Monad[F[_]] {
     y
   }
 
-  def associativityLaw[A, B, C, D](f: A => F[B], g: B => F[C], h: C => F[D]) =
-    compose(compose(f, g), h) == compose(f, compose(g, h))
-
   def lift[A, B](m: F[A])(f: A => B): F[A] => F[B] =
     m => map(m)(f)
 
   def flatMapViaCompose[A, B](ma: F[A])(f: A => F[B]): F[B] =
     compose((_: Unit) => ma, f)(())
 
+  def associativityLaw[A, B, C, D](f: A => F[B], g: B => F[C], h: C => F[D]) =
+    compose(compose(f, g), h) == compose(f, compose(g, h))
+
+  def leftIdentity[A](f: A => F[A]) =
+    compose(f, unit) == f
+
+  def rightIdentity[A](f: A => F[A]) =
+    compose(unit, f) == f
+
+  def _leftIdentity[A](x: F[A]) =
+    flatMap(x)(unit) == x
+
+  def _rightIdentity[A](y: A)(f: A => F[A]) =
+    flatMap(unit(y))(f) == f(y)
+
+  def compose111[A, B, C](f: A => F[B], g: B => F[C]): A => F[C] =
+    a => flatMap(f(a))(g)
+
+  /**
+   * Equivalence: |<=>|
+   *
+   * leftIdentity[A](f: A => F[A])      <=>
+   * compose(f, unit) == (A => F[A])    <=>  | apply to (a) both sides
+   * flatMap(F[A])(unit) == F[A]        <=>
+   * _leftIdentity[A](x: F[A])
+   *
+   */
+
+  /**
+   * Option identity:
+   * flatMap(None)(unit) == None
+   * flatMap(Some(_))(unit) = unit(_) = Some(_)
+   *
+   * compose(f, unit) = a => None flatMap unit = a => None = f
+   * compose(f, unit) = a => Some(_) flatMap unit = a => Some(_) = f
+   *
+   */
 
 }
 
