@@ -1,4 +1,4 @@
-import functionalex.part3.Monoids
+import functionalex.part3.{Monad, Monoids}
 
 object Hi {
   def main(args: Array[String]) {
@@ -26,6 +26,24 @@ object Hi {
     val map2 = Map("A" -> 2, "B" -> 1)
     println(Monoids.mapMergeMonoid(Monoids.intAddition).op(map1, map2))
     println(Monoids.bag(Vector("a", "rose", "is", "a", "rose")))
+
+    /* List replicate */
+    val x = List(0, 1)
+    println(s"Replicating $x")
+    val opMonoid = Monad.listMonad.replicateM(2, x)
+    println(opMonoid)
+
+    /* Option replicate */
+    val y = Option(Option(0, 1))
+    println(s"Replicating $y \n")
+    println(Monad.optionMonad.replicateM(2, y))
+
+    /* Monadic filter */
+    val ints = List(1, 2, 3, 4)
+    println(Monad.optionMonad.filterM(ints)(i => Some(i % 2 == 0)))
+    println(Monad.listMonad.filterM(ints)(i => List(i % 2 == 0)))
+
+
   }
 
 }
