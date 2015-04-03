@@ -17,6 +17,13 @@ trait Monad[F[_]] {
   def map2[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
     flatMap(fa)(a => map(fb)(b => f(a, b)))
 
+  def join[A](mma: F[F[A]]): F[A] =
+    flatMap(mma)(m => m)
+
+  def _compose[A, B, C](f: A => F[B], g: B => F[C]): A => F[C] =
+    a => join(map(f(a))(g))
+
+
   def sequence[A](lma: List[F[A]]): F[List[A]] =
     traverse(lma)(identity)
 
@@ -32,11 +39,6 @@ trait Monad[F[_]] {
 
   def compose[A, B, C](f: A => F[B], g: B => F[C]): A => F[C] =
     a => flatMap(f(a))(g)
-
-
-  // need some empty to implement filter
-  //  def filter[A](na: F[A])(p: A => Boolean): F[A] =
-  //    flatMap(na)(a => if (p(a)) unit(a) else unit())
 
   /**
    * Monadic filter. What does it actually mean?
@@ -74,9 +76,6 @@ trait Monad[F[_]] {
 
   def _rightIdentity[A](y: A)(f: A => F[A]) =
     flatMap(unit(y))(f) == f(y)
-
-  def compose111[A, B, C](f: A => F[B], g: B => F[C]): A => F[C] =
-    a => flatMap(f(a))(g)
 
   /**
    * Equivalence: |<=>|
