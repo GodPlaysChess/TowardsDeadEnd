@@ -54,13 +54,14 @@ trait Monad[F[_]] {
     y
   }
 
-  def associativityLaw[A, B, C](f: A => F[A], g: B => F[B], h: C => F[C]) =
+  def associativityLaw[A, B, C, D](f: A => F[B], g: B => F[C], h: C => F[D]) =
     compose(compose(f, g), h) == compose(f, compose(g, h))
 
-  def flatMapViaCompose[A, B](ma: F[A])(f: A => F[B]): F[B] = {
-    compose(t => ma, f)(_)
-    x(1)
-  }
+  def lift[A, B](m: F[A])(f: A => B): F[A] => F[B] =
+    m => map(m)(f)
+
+  def flatMapViaCompose[A, B](ma: F[A])(f: A => F[B]): F[B] =
+    compose((_: Unit) => ma, f)(())
 
 
 }
