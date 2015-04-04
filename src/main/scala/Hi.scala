@@ -1,4 +1,4 @@
-import functionalex.part3.{Monad, Monoids}
+import functionalex.part3.{Reader, Monad, Monoids}
 
 object Hi {
   def main(args: Array[String]) {
@@ -42,6 +42,11 @@ object Hi {
     val ints = List(1, 2, 3, 4)
     println(Monad.optionMonad.filterM(ints)(i => Some(i % 2 == 0)))
     println(Monad.listMonad.filterM(ints)(i => List(i % 2 == 0)))
+
+    /* Reader */
+    val mr = Reader.readerMonad[String]
+    val mr1 = mr.replicateM(3, mr.unit("Hello"))
+    println(mr1.run("world"))
 
 
   }

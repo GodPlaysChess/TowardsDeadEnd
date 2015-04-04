@@ -1,5 +1,6 @@
 package functionalex.part3
 
+import functionalex.part1.State
 import functionalex.part2.Par.Par
 import functionalex.part2.{Gen, Par}
 
@@ -65,17 +66,17 @@ trait Monad[F[_]] {
   def associativityLaw[A, B, C, D](f: A => F[B], g: B => F[C], h: C => F[D]) =
     compose(compose(f, g), h) == compose(f, compose(g, h))
 
-  def leftIdentity[A](f: A => F[A]) =
-    compose(f, unit) == f
-
-  def rightIdentity[A](f: A => F[A]) =
-    compose(unit, f) == f
-
-  def _leftIdentity[A](x: F[A]) =
-    flatMap(x)(unit) == x
-
-  def _rightIdentity[A](y: A)(f: A => F[A]) =
-    flatMap(unit(y))(f) == f(y)
+//  def leftIdentity[A](f: A => F[A]) =
+//    compose(f, unit) == f
+//
+//  def rightIdentity[A](f: A => F[A]) =
+//    compose(unit, f) == f
+//
+//  def _leftIdentity[A](x: F[A]) =
+//    flatMap(x)(unit) == x
+//
+//  def _rightIdentity[A](y: A)(f: A => F[A]) =
+//    flatMap(unit(y))(f) == f(y)
 
   /**
    * Equivalence: |<=>|
@@ -139,6 +140,14 @@ object Monad {
       ma flatMap f
   }
 
+  def stateMonad[S] = new Monad[({type f[x] = State[S, x]})#f] {
+    override def unit[A](a: => A): State[S, A] = State(s => (a, s))
+
+    override def flatMap[A, B](st: State[S, A])(f: A => State[S, B]): State[S, B] =
+      st flatMap f
+
+  }
+
   //  def stateMonad[S, A] = new Monad[St] {
   //    type St = State[S, A]
   //
@@ -148,4 +157,10 @@ object Monad {
   //    override def flatMap[A, B](ma: State[A])(f: (A) => State[B]): State[B] = ???
   //  }
 
+}
+
+object IntstateMonad extends Monad[({type IntState[A] = State[Int, A]})#IntState] {
+  override def unit[A](a: => A): State[Int, A] = ???
+
+  override def flatMap[A, B](ma: State[Int, A])(f: (A) => State[Int, B]): State[Int, B] = ???
 }
