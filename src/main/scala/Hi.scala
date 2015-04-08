@@ -44,9 +44,18 @@ object Hi {
     println(Monad.listMonad.filterM(ints)(i => List(i % 2 == 0)))
 
     /* Reader */
-    val mr = Reader.readerMonad[String]
-    val mr1 = mr.replicateM(3, mr.unit("Hello"))
-    println(mr1.run("world"))
+    val readerMonad = Reader.readerMonad[String]
+    val r2: Reader[String, List[String]] = readerMonad.replicateM(3, readerMonad.unit("Hello"))
+    val r1: Reader[String, Int] = readerMonad.map(r2)(_.length)
+    println(r2.run("world"))
+    println(r1.run("world"))
+    println(readerMonad.map(readerMonad.unit("hello"))(_.length).run("w"))
+    val lenReader = Reader[String, Int](_.length)
+    println(lenReader.run("word"))
+    println(readerMonad.map(lenReader)(_ * 2).run("word"))
+    println(readerMonad.flatMap(lenReader)(x => Reader(y => y * x)).run("word"))
+
+
 
 
   }

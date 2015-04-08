@@ -24,7 +24,7 @@ sealed trait Either[+E, +A] {
 
   /** map2 which collects errors */
   def mapCollect[EE >: E, B, C](b: Either[EE, B])(f: (A, B) => C): Either[EE, C] = ???
-    // a and b left then combin else do map2
+    // a and b left then combine else do map2
 
 }
 

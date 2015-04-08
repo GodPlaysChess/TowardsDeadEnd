@@ -1,22 +1,15 @@
 package functionalex.part3
 
-import functionalex.part1.State
+
+import functionalex.part1.{State, Either, Right}
 import functionalex.part2.Par.Par
 import functionalex.part2.{Gen, Par}
 
-/**
- * Created by Gleb on 4/2/2015.
- */
-trait Monad[F[_]] {
-  def unit[A](a: => A): F[A]
-
+trait Monad[F[_]] extends Applicative[F] {
   def flatMap[A, B](ma: F[A])(f: A => F[B]): F[B]
 
-  def map[A, B](ma: F[A])(f: A => B): F[B] =
+  override def map[A, B](ma: F[A])(f: A => B): F[B] =
     flatMap(ma)(a => unit(f(a)))
-
-  def map2[A, B, C](fa: F[A], fb: F[B])(f: (A, B) => C): F[C] =
-    flatMap(fa)(a => map(fb)(b => f(a, b)))
 
   def join[A](mma: F[F[A]]): F[A] =
     flatMap(mma)(m => m)
@@ -24,22 +17,11 @@ trait Monad[F[_]] {
   def _compose[A, B, C](f: A => F[B], g: B => F[C]): A => F[C] =
     a => join(map(f(a))(g))
 
-
-  def sequence[A](lma: List[F[A]]): F[List[A]] =
-    traverse(lma)(identity)
-
-  def traverse[A, B](la: List[A])(f: A => F[B]): F[List[B]] =
-    la.foldRight(unit(List.empty[B])) {
-      (el, acc) => map2(f(el), acc)(_ :: _)
-    }
-
-  def replicateM[A](n: Int, ma: F[A]): F[List[A]] =
-    sequence(List.fill(n)(ma))
-
-  def product[A, B](ma: F[A], mb: F[B]): F[(A, B)] = map2(ma, mb)((_, _))
-
   def compose[A, B, C](f: A => F[B], g: B => F[C]): A => F[C] =
     a => flatMap(f(a))(g)
+
+  def apply[A, B](fab: F[A => B])(af: F[A]): F[B] =
+     map2(fab, af)(_(_)) // TODO change the circular reference
 
   /**
    * Monadic filter. What does it actually mean?
@@ -103,6 +85,13 @@ trait Monad[F[_]] {
 
 object Monad {
 
+  def eitherMonad[E] = new Monad[({type f[x] = Either[E, x]})#f] {
+    override def unit[A](a: => A): Either[E, A] = Right(a)
+
+    override def flatMap[A, B](ma: Either[E, A])(f: A => Either[E, B]): Either[E, B] =
+      ma.flatMap(f)
+  }
+
   def genMonad = new Monad[Gen] {
     override def unit[A](a: => A): Gen[A] = Gen.unit(a)
 
@@ -147,15 +136,6 @@ object Monad {
       st flatMap f
 
   }
-
-  //  def stateMonad[S, A] = new Monad[St] {
-  //    type St = State[S, A]
-  //
-  //
-  //    override def unit[A](a: => A): State[A] = ???
-  //
-  //    override def flatMap[A, B](ma: State[A])(f: (A) => State[B]): State[B] = ???
-  //  }
 
 }
 
