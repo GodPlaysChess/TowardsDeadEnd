@@ -1,4 +1,7 @@
-import functionalex.part3.{Reader, Monad, Monoids}
+import java.text.SimpleDateFormat
+import java.util.Date
+
+import functionalex.part3._
 
 object Hi {
   def main(args: Array[String]) {
@@ -55,9 +58,41 @@ object Hi {
     println(readerMonad.map(lenReader)(_ * 2).run("word"))
     println(readerMonad.flatMap(lenReader)(x => Reader(y => y * x)).run("word"))
 
+    /* Validation of WEB FORM */
+    val wf1: Validation[String, WebForm] = validWebForm("Gleb", "1987-03-05", "1234567890")
+    val wf2: Validation[String, WebForm] = validWebForm("Gleb Corrupted", "1987/03/05", "(+49 123 456 78)")
+    println(wf1)
+    println(wf2)
+
+  }
 
 
+  def validName(name: String): Validation[String, String] = {
+    if (!name.isEmpty) Success(name)
+    else Failure("Name can not be empty")
+  }
 
+  def validDate(birthDate: String): Validation[String, Date] =
+    try {
+      Success(new SimpleDateFormat("yyyy-MM-dd").parse(birthDate))
+    } catch {
+      case _: Exception => Failure("BirthDate must be given in a form yyyy-MM-dd")
+    }
+
+  def validPhone(phone: String): Validation[String, String] = {
+    if (phone.matches("[0-9]{10}")) Success(phone)
+    else Failure("Phone must be 10 digits")
+  }
+
+  def validWebForm(name: String, birthdate: String, phone: String): Validation[String, WebForm] = {
+    val F = Applicative.validationApplicative[String]
+    F.apply(
+      F.apply(
+        F.apply(
+          F.unit((WebForm(_, _, _)).curried))
+        (validName(name))
+      )(validDate(birthdate))
+    )(validPhone(phone))
   }
 
 }

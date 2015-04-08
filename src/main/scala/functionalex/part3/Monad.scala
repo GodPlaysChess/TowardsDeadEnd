@@ -20,8 +20,10 @@ trait Monad[F[_]] extends Applicative[F] {
   def compose[A, B, C](f: A => F[B], g: B => F[C]): A => F[C] =
     a => flatMap(f(a))(g)
 
-  def apply[A, B](fab: F[A => B])(af: F[A]): F[B] =
-     map2(fab, af)(_(_)) // TODO change the circular reference
+  override def apply[A, B](fab: F[A => B])(af: F[A]): F[B] =
+    join(map(fab)(f => map(af)(a => f(a))))
+
+
 
   /**
    * Monadic filter. What does it actually mean?
