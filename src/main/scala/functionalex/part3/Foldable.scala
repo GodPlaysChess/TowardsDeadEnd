@@ -4,9 +4,11 @@ import functionalex.part1.{Branch, Leaf, Tree}
 
 trait Foldable[F[_]] {
 
-  def foldRight[A, B](as: F[A])(z: B)(f: (A, B) => B): B
+  def foldRight[A, B](as: F[A])(z: B)(f: (A, B) => B): B =
+    foldMap(as)(f.curried)(Monoids.endoMonoid[B])(z)
 
-  def foldLeft[A, B](as: F[A])(z: B)(f: (B, A) => B): B
+  def foldLeft[A, B](as: F[A])(z: B)(f: (B, A) => B): B =
+    foldRight(as)(z)((a, b) => f(b, a))
 
   def foldMap[A, B](as: F[A])(f: A => B)(mb: Monoid[B]): B
 

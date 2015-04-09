@@ -12,11 +12,11 @@ trait Monoid[A] {
 
 object Monoids {
 
-  //  def map[A, B](m: Monoid[A])(f: A => B): Monoid[B] = new Monoid[B] {
-  //    override def op(a1: B, a2: B): B = endoMonoid[B].op(x => a1, x2 => a2)
-
-  //    override def zero: B = f(m.zero)
-  //  }
+//    def map[A, B](m: Monoid[A])(f: A => B): Monoid[B] = new Monoid[B] {
+//      override def op(a1: B, a2: B): B = endoMonoid[B].op(x => a1, x2 => a2)
+//
+//      override def zero: B = f(m.zero)
+//    }
 
   def par[A](m: Monoid[A]): Monoid[Par[A]] =
     new Monoid[Par[A]] {
