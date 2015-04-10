@@ -63,7 +63,6 @@ object Hi {
     val wf2: Validation[String, WebForm] = validWebForm("Gleb Corrupted", "1987/03/05", "(+49 123 456 78)")
     println(wf1)
     println(wf2)
-
   }
 
 
