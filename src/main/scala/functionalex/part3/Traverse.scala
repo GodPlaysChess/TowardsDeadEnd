@@ -1,25 +1,54 @@
 package functionalex.part3
 
-import scala.collection.immutable.Nil
+import functionalex.part1.State
 
-trait Traverse[F[_]] extends Functor[F] with Foldable[F] { self =>
+trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
+  self =>
 
-  def traverse[M[_]:Applicative,A,B](fa: F[A])(f: A => M[B]): M[F[B]] =
+  def traverse[M[_] : Applicative, A, B](fa: F[A])(f: A => M[B]): M[F[B]] =
     sequence(map(fa)(f))
 
-  def sequence[M[_]:Applicative,A](fma: F[M[A]]): M[F[A]] =
+  def sequence[M[_] : Applicative, A](fma: F[M[A]]): M[F[A]] =
     traverse(fma)(ma => ma)
 
   override def map[A, B](fa: F[A])(f: A => B): F[B] =
     traverse[Id, A, B](fa)(f)(idMonad)
 
-  override def foldMap[A,B](as: F[A])(f: A => B)(mb: Monoid[B]): B =
+  override def foldMap[A, B](as: F[A])(f: A => B)(mb: Monoid[B]): B =
     traverse[({type f[x] = Const[B, x]})#f, A, Nothing](as)(f)(monoidApplicative(mb))
 
-//  def reverse[A](F: F[A]): F[A] =
-//    traverse()
+  def traverseS[S, A, B](fa: F[A])(f: A => State[S, B]): State[S, F[B]] =
+    traverse[({type f[x] = State[S, x]})#f, A, B](fa)(f)(Monad.stateMonad)
 
-  implicit def monoidApplicative[M](M: Monoid[M]) = new Applicative[({ type f[x] = Const[M, x] })#f] {
+  def mapAccum[S, A, B](fa: F[A], s: S)(f: (A, S) => (B, S)): (F[B], S) =
+    traverseS(fa)((a: A) => for {
+      s1 <- State.get[S]
+      (b, s2) = f(a, s1)
+      _ <- State.set(s2)
+    } yield b).run(s)
+
+  override def toList[A](fa: F[A]): List[A] =
+    mapAccum(fa, List[A]())((a, s) => ((), a :: s))._2.reverse
+
+  def reverse[A](fa: F[A]): F[A] =
+    mapAccum(fa, toList(fa).reverse)((_, as) => (as.head, as.tail))._1
+
+  def foldLeftTraverse[A, B](z: B)(fa: F[A])(f: (B, A) => B) =
+    mapAccum(fa, z)((a, b) => ((), f(b, a)))._2
+
+  def zip[A, B](fa: F[A], fb: F[B]): F[(A, B)] =
+    mapAccum(fa, toList(fb)) {
+      case (_, Nil) => sys.error("Incompatible shapes")
+      case (a, b :: bs) => (a -> b, bs)
+    }._1
+
+  def fuse[M[_], N[_], A, B](fa: F[A])(g: A => M[B], h: A => N[B])(M: Applicative[M], N: Applicative[N]): (M[F[B]], N[F[B]]) =
+//    sequence(map(fa)(g)) -> sequence(map(fa)(h))
+//  traverse[({type f[x] = (M[x], N[x])})#f, A, B](fa)(a => (g(a), h(a)))  what is the difference between those three
+    traverse[({type f[x] = (M[x], N[x])})#f, A, B](fa)(a => (g(a), h(a)))(M ** N)
+
+
+  implicit def monoidApplicative[M](M: Monoid[M]) = new Applicative[({type f[x] = Const[M, x]})#f] {
     override def unit[A](a: => A): M = M.zero
 
     override def apply[A, B](m1: M)(m2: M): M = M.op(m1, m2)
@@ -47,17 +76,10 @@ object OptionTraverse extends Traverse[Option] {
       case Some(m) => M.map(f(m))(Some(_))
     }
 }
-case class Tree[A](head: A, tail: List[Tree[A]])
 
-object TreeTraverse extends Traverse[Tree] {
-  override def traverse[M[_], A, B](ta: Tree[A])(f: A => M[B])(implicit M: Applicative[M]): M[Tree[B]] =
-    ta.tail match {
-      case Nil => M.map(f(ta.head))(Tree[B](_, List()))
-      case ::(head, tl) => {
-        val mtail: List[M[Tree[B]]] = ta.tail.map { t => traverse[M, A, B](t)(f) }
-        val mhead: M[B] = f(ta.head)
-        M.map2(mhead, ListTraverse.sequence(mtail))(Tree(_, _))
-      }
-    }
+case class TreeN[A](head: A, tail: List[TreeN[A]])
 
+object TreeTraverse extends Traverse[TreeN] {
+  override def traverse[M[_], A, B](ta: TreeN[A])(f: A => M[B])(implicit M: Applicative[M]): M[TreeN[B]] =
+    M.map2(f(ta.head), ListTraverse.sequence(ta.tail.map(traverse(_)(f))))(TreeN(_, _))
 }

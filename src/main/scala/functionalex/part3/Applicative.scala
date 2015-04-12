@@ -14,6 +14,12 @@ trait Applicative[F[_]] extends Functor[F]{
   def _map2[A, B, C](af: F[A], bf: F[B])(f: (A, B) => C): F[C] =
     apply(apply(unit[A => B => C](f.curried))(af))(bf)
 
+  def map3[A, B, C, D](fa: F[A], fb: F[B], fc: F[C])(f: (A, B, C) => D) = {
+    val fcd: F[(C) => D] = map2(fa, fb)((a,b) => f.curried(a)(b))
+    apply(fcd)(fc)
+  }
+
+
   override def map[A, B](af: F[A])(f: A => B): F[B] =
     apply[A,B](unit(f))(af)
 
@@ -45,19 +51,8 @@ trait Applicative[F[_]] extends Functor[F]{
   def compose[G[_]](G: Applicative[G]) = new Applicative[({type f[x] = F[G[x]]})#f] {
     override def apply[A, B](fab: F[G[(A) => B]])(af: F[G[A]]): F[G[B]] =
       map2(fab, af)(_(_))
-//      {
-//      val y: G[A => B] = ???
-//      val z: (G[A]) => G[B] = G.apply(y)
-//      val t = map(fab)((q: G[A => B]) => G.apply(q))
-//      val t1 = self.apply[G[_], G[_]](unit(G.apply))(fab)
-//      val x: F[G[A] => G[B]] = map(fab)((q: G[A => B]) => G.apply(q)(_))
-//
-//
-//
-//      self.apply(x)(af)
-//    }
 
-    override def map2[A,B,C](fga: F[G[A]], fgb: F[G[B]])(f: (A,B) => C) =
+    override def map2[A, B, C](fga: F[G[A]], fgb: F[G[B]])(f: (A,B) => C) =
       self.map2(fga, fgb)(G.map2(_,_)(f))
 
     override def unit[A](a: => A): F[G[A]] = self.unit(G.unit(a))

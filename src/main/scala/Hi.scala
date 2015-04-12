@@ -94,5 +94,13 @@ object Hi {
     )(validPhone(phone))
   }
 
+  def validWebForm1(name: String, birthdate: String, phone: String): Validation[String, WebForm] = {
+    val F = Applicative.validationApplicative[String]
+    F.map3(
+      validName(name),
+      validDate(birthdate),
+      validPhone(phone)
+    )(WebForm)
+  }
 }
 
