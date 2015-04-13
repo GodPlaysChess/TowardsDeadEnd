@@ -42,17 +42,49 @@ trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
       case (a, b :: bs) => (a -> b, bs)
     }._1
 
-  def fuse[M[_], N[_], A, B](fa: F[A])(g: A => M[B], h: A => N[B])(M: Applicative[M], N: Applicative[N]): (M[F[B]], N[F[B]]) =
-//    sequence(map(fa)(g)) -> sequence(map(fa)(h))
-//  traverse[({type f[x] = (M[x], N[x])})#f, A, B](fa)(a => (g(a), h(a)))  what is the difference between those three
+  def fuse[M[_], N[_], A, B](fa: F[A])(g: A => M[B], h: A => N[B])(implicit M: Applicative[M], N: Applicative[N]): (M[F[B]], N[F[B]]) =
     traverse[({type f[x] = (M[x], N[x])})#f, A, B](fa)(a => (g(a), h(a)))(M ** N)
 
+  def fuse1[M[_], N[_], A, B](fa: F[A])(g: A => M[B], h: A => N[B])(implicit M: Applicative[M], N: Applicative[N]): (M[F[B]], N[F[B]]) =
+    sequence(map(fa)(g))(M) -> sequence(map(fa)(h))(N) //with two traverses
 
-  implicit def monoidApplicative[M](M: Monoid[M]) = new Applicative[({type f[x] = Const[M, x]})#f] {
-    override def unit[A](a: => A): M = M.zero
+  def compose[G[_]: Traverse]/*(implicit G: Traverse[G])*/: Traverse[({type f[x] = F[G[x]]})#f] =
+    new Traverse[({type f[x] = F[G[x]]})#f] {
+      override def traverse[M[_]:Applicative,A,B](fa: F[G[A]])(f: A => M[B]) =
+        self.traverse(fa)((ga: G[A]) => implicitly[Traverse[G]].traverse(ga)(f))
+    }
 
-    override def apply[A, B](m1: M)(m2: M): M = M.op(m1, m2)
+  def composeM[G[_]](F: Monad[F], G: Monad[G], T: Traverse[G]) = new Monad[({type f[x] = F[G[x]]})#f] {
+    override def flatMap[A, B](ma: F[G[A]])(f: (A) => F[G[B]]): F[G[B]] = {
+      val fgfgb: F[G[F[G[B]]]] = F.map(ma)(G.map(_)(f))
+      val ffggb: F[F[G[G[B]]]] = F.map(fgfgb)(T.sequence(_)(F))
+      val fggb: F[G[G[B]]] = F.join(ffggb)
+      F.map(F.join(ffggb))(G.join)
+    }
+    override def unit[A](a: => A): F[G[A]] =
+      F.unit(G.unit(a))
   }
+
+//  def compose[G[_]](implicit G: Applicative[G]) = new Traverse[({type f[x] = F[G[x]]})#f] {
+//    val G = implicitly[G[_]] ?
+//    override def traverse[M[_] : Applicative, A, B](fa: F[G[A]])(f: (A) => M[B]): M[F[G[B]]] =
+//      self.traverse(fa)((ga: G[A]) => G.traverse[G, A](ga)(f))
+//
+//    new Traverse[({type f[x] = F[G[x]]})#f] {
+//      override def traverse[M[_]:Applicative,A,B](fa: F[G[A]])(f: A => M[B]) =
+//        self.traverse(fa)((ga: G[A]) => G.traverse(ga)(f))
+//    }
+
+
+
+
+
+  implicit def monoidApplicative[M](M: Monoid[M]) =
+    new Applicative[({type f[x] = Const[M, x]})#f] {
+      override def unit[A](a: => A): M = M.zero
+
+      override def apply[A, B](m1: M)(m2: M): M = M.op(m1, m2)
+    }
 
   type Const[A, B] = A
   type Id[A] = A

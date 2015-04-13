@@ -6,7 +6,8 @@ import functionalex.part2.Par.Par
 import functionalex.part2.{Gen, Par}
 
 trait Monad[F[_]] extends Applicative[F] {
-  def flatMap[A, B](ma: F[A])(f: A => F[B]): F[B]
+  def flatMap[A, B](ma: F[A])(f: A => F[B]): F[B] =
+    join(map(ma)(f))
 
   override def map[A, B](ma: F[A])(f: A => B): F[B] =
     flatMap(ma)(a => unit(f(a)))
