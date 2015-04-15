@@ -1,17 +1,17 @@
 package functionalex.part4
 
-import functionalex.part3.{Monad, Monoid}
+import functionalex.part3.Monad
 
 import scala.annotation.tailrec
 
-sealed trait IO[A] { self =>
-  def map[B](f: A => B): IO[B] =
+sealed trait TailRec[A] { self =>
+  def map[B](f: A => B): TailRec[B] =
     flatMap(x => Return(f(x)))
 
-  def flatMap[B](f: A => IO[B]): IO[B] =
+  def flatMap[B](f: A => TailRec[B]): TailRec[B] =
     FlatMap(this, f)
 
-  @tailrec final def run(io: IO[A]): A = io match {
+  @tailrec final def run(io: TailRec[A]): A = io match {
     case Return(a) => a
     case Suspend(r) => r()
     case FlatMap(x, f) => x match {
@@ -22,9 +22,9 @@ sealed trait IO[A] { self =>
   }
 }
 
-case class Return[A](a: A) extends IO[A]
-case class Suspend[A](resume: () => A) extends IO[A]
-case class FlatMap[A,B](sub: IO[A], k: A => IO[B]) extends IO[B]
+case class Return[A](a: A) extends TailRec[A]
+case class Suspend[A](resume: () => A) extends TailRec[A]
+case class FlatMap[A,B](sub: TailRec[A], k: A => TailRec[B]) extends TailRec[B]
 
 
 
