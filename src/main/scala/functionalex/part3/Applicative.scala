@@ -2,7 +2,9 @@ package functionalex.part3
 
 trait Applicative[F[_]] extends Functor[F]{
   self =>
+
   // those two is the primitives which must be set
+
   def unit[A](a: => A): F[A]
 
   def apply[A, B](fab: F[A => B])(af: F[A]): F[B]

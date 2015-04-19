@@ -1,0 +1,3 @@
+ Concurrency - Akka.
+    -   try to write some simple concurrent computations with both actors and executors
+

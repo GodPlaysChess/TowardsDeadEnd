@@ -22,6 +22,13 @@ object Free {
   type Async[A] = Free[Par, A]
   type TailRec[A] = Free[Function0, A]
 
+
+  trait Translate[F[_], G[_]] {
+    def apply[A](f: F[A]): G[A]
+  }
+
+  type ~>[F[_], G[_]] = Translate[F, G]
+
   def freeMonad[F[_]] = new Monad[({type f[x] = Free[F, x]})#f]() {
     override def flatMap[A, B](fa: Free[F, A])(f: A => Free[F, B]): Free[F, B] =
       fa flatMap f
@@ -36,11 +43,11 @@ object Free {
     case _ => fm
   }
 
-  def run[F[_], A](fm: Free[F, A])(implicit F: Monad[F]): F[A] = step(fm) match {
-    case Return1(a) => F.unit(a)
-    case Suspend1(r) => r
+  def runFree[F[_], G[_], A](fm: Free[F, A])(t: F ~> G)(implicit G: Monad[G]): G[A] = step(fm) match {
+    case Return1(a) => G.unit(a)
+    case Suspend1(r) => t(r)
     case FlatMap1(x, f) => x match {
-      case Suspend1(r) => F.flatMap(r)(a => run(f(a)))
+      case Suspend1(r) => G.flatMap(t(r))(a => runFree(f(a))(t))
       case _ => sys.error("Impossible, since `step` eliminates these cases")
     }
   }

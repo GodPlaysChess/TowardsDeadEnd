@@ -63,7 +63,7 @@ object IOMonad extends Monad[IO0] {
 object IOActions {
   def ReadLine: IO0[String] = IOMonad(scala.io.StdIn.readLine())
 
-  def PrintLine(msg: String): IO0[Unit] = IOMonad(println(msg))
+  def PrintLine(msg: Any): IO0[Unit] = IOMonad(println(msg))
 
   def echo: IO0[Unit] = ReadLine flatMap PrintLine
 }
