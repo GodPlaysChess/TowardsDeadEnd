@@ -28,7 +28,7 @@ object Simulator {
   }
 
   def findStrategy(enemy: Enemy): Seq[Spell] =
-    findBest(run(enemy))
+    findBest(runViaFor(enemy))
 
   // | best for now means less time | Monad or foldable!
   def findBest(seq: Seq[Seq[Spell]]): Seq[Spell] =
@@ -50,14 +50,28 @@ object Simulator {
   def run(enemy: Enemy): Seq[Seq[Spell]] = {
     def go(state: Seq[(Enemy, Seq[Spell])]): Seq[(Enemy, Seq[Spell])] = {
       if (state.forall(_._1.hp <= 0)) state
-//      else go(state.flatMap { case (en, seq) if en.hp > 0 =>
-//        step(en).map(ensp => ensp._1 -> (ensp._2 +: seq)) }
-//      )
-      else go(state.flatMap(enseq => {
-        if (enseq._1.hp > 0) {
-          step(enseq._1).map(ensp => ensp._1 -> (ensp._2 +: enseq._2))
-        } else Seq(enseq)
-      }))
+      else go(state.flatMap { case id@(en, seq) =>
+        if (en.hp > 0) {
+          step(en).map(ensp => ensp._1 -> (ensp._2 +: seq))
+        } else Seq(id)
+      })
+    }
+    go(Seq(enemy -> Seq.empty)).map(_._2)
+  }
+
+  /** returns sequence of sequences of spells which kills the enemy */
+  // LENS here
+  def runViaFor(enemy: Enemy): Seq[Seq[Spell]] = {
+    def go(state: Seq[(Enemy, Seq[Spell])]): Seq[(Enemy, Seq[Spell])] = {
+      if (state.forall(_._1.hp <= 0)) state
+      else go(for {
+        (enemy, seq) <- state
+        (en, spell) <- step(enemy)
+      } yield {
+          if (enemy.hp > 0) en -> (spell +: seq)
+          else enemy -> seq
+        }
+      )
     }
     go(Seq(enemy -> Seq.empty)).map(_._2)
   }
