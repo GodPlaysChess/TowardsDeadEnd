@@ -3,7 +3,9 @@ package functionalproj.dpssim
 /**
  * Created by Gleb on 3/11/2015.
  */
-case class Enemy(hp: Double, effects: Seq[Effect] = Seq.empty)
+case class Enemy(hp: Double, effects: Seq[Effect] = Seq.empty) {
+
+}
 
 //  def simulateMachine(inputs: List[Input]): State[Machine, (Int, Int)] = for {
 //    _ <- sequence(inputs.map(i => modify((s: Machine) => (i, s) match {

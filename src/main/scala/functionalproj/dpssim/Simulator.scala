@@ -1,7 +1,7 @@
 package functionalproj.dpssim
 
-import scalaz._
-import Scalaz._
+import scalaz.Scalaz._
+import scalaz.{Foldable, Monoid, State, _}
 
 
 /**
@@ -21,18 +21,25 @@ object Simulator {
     override def append(f1: Boolean, f2: => Boolean): Boolean = f1 && f2
   }
 
-  implicit object SpellFoldMonoid extends Monoid[Seq[Spell]] {
-    override def zero: Seq[Spell] = ???
+  implicit val minDoubleMonoid = new Monoid[Double] {
+    override def zero: Double = 0d
 
-    override def append(f1: Seq[Spell], f2: => Seq[Spell]): Seq[Spell] = ???
+    override def append(f1: Double, f2: => Double): Double = f1 min f2
   }
+
+  /* Standard functional way */
 
   def findStrategy(enemy: Enemy): Seq[Spell] =
     findBest(runViaFor(enemy))
 
   // | best for now means less time | Monad or foldable!
   def findBest(seq: Seq[Seq[Spell]]): Seq[Spell] =
-    seq.minBy(s => s.foldLeft(0d)(_ + _.castTime))
+    seq.minBy(_.foldLeft(0d)(_ + _.castTime))
+
+  // using foldMap and min Monoid:
+  def _findBest(seq: Seq[Seq[Spell]]): Seq[Spell] = {
+    Foldable[Seq].minimumBy(seq)(inner => Foldable[Seq].foldMap(inner)(_.castTime)).getOrElse(Seq.empty)
+  }
 
   // should be state, but let's make it work first in functional but in non-monadic way
   def step(enemy: Enemy): Seq[(Enemy, Spell)] =
@@ -41,9 +48,13 @@ object Simulator {
       applySpell(enemy, SearingPain())
     )
 
-  // lens or state!
+  // easy way
   def applySpell(enemy: Enemy, spell: Spell): (Enemy, Spell) =
     enemy.copy(enemy.hp - spell.dmg) -> spell
+
+  // using lens
+  def _applySpellLens(enemy: Enemy, spell: Spell): (Enemy, Spell) =
+    castSpell(enemy, spell) -> spell
 
   /** returns sequence of sequences of spells which kills the enemy */
   // LENS here
@@ -59,8 +70,6 @@ object Simulator {
     go(Seq(enemy -> Seq.empty)).map(_._2)
   }
 
-  /** returns sequence of sequences of spells which kills the enemy */
-  // LENS here
   def runViaFor(enemy: Enemy): Seq[Seq[Spell]] = {
     def go(state: Seq[(Enemy, Seq[Spell])]): Seq[(Enemy, Seq[Spell])] = {
       if (state.forall(_._1.hp <= 0)) state
@@ -76,14 +85,9 @@ object Simulator {
     go(Seq(enemy -> Seq.empty)).map(_._2)
   }
 
+  ////////////////////////// Fancy functional way /////////////////////////////////////////////
 
-  ///////////////////////////////////////////////////////////////////////
-
-  def appendSpellForEveryLivingEnemy(enseq: (Enemy, Seq[Spell])): Seq[(Enemy, Seq[Spell])] = {
-    if (enseq._1.hp > 0) {
-      step(enseq._1).map(ensp => ensp._1 -> (ensp._2 +: enseq._2))
-    } else Seq(enseq)
-  }
+  def fancyFindStrategy(enemy: Enemy): List[Spell] = ???
 
   def simulate(input: List[Spell]): State[Enemy, Boolean] = {
     val sts: List[State[Enemy, Boolean]] = input.map(applySpell)
@@ -93,10 +97,69 @@ object Simulator {
 
   // neeed to apply spell using State.modify
   def applySpell(sp: Spell): State[Enemy, Boolean] = for {
-    s <- get[Enemy]
+    s <- State.get[Enemy]
     alive = if (s.hp - sp.dmg > 0) true else false
-    enemy <- put(Enemy(s.hp - sp.dmg, s.effects ++ sp.effects)) // here we're chaining the state
+    enemy <- State.put(Enemy(s.hp - sp.dmg, s.effects ++ sp.effects)) // here we're chaining the state
   } yield alive // this value we're returning.
+
+
+  //set: (A, B) => A,
+  //get: A => B
+  val hpLens: Lens[Enemy, Double] = Lens.lensu[Enemy, Double] (
+    (e, newhp) => e.copy(hp = newhp),
+    _.hp
+  )
+
+  // the same as apply spell, but using Lens
+  def castSpell(en: Enemy, sp: Spell): Enemy = {
+    hpLens.mod(_ - sp.dmg, en)
+  }
+
+  def _applySpell(sp: Spell, en: Enemy): (Enemy, Boolean) = {
+    val enemy = castSpell(en, sp)
+    enemy -> (enemy.hp <= 0)
+  }
+
+
+
+
+
+  /**
+   * Idea:
+   * 1) Generate all sequences   ->  Gen must help
+   * 2) Simulate behavior with this sequence.   ->    Simulate yields boolean.
+   * 3) Yield the sequence if enemy dies   -> can I somehow use computed state?
+   * 4) Collect all sequences
+   * 5) Find the best sequence
+   */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  def appendSpellForEveryLivingEnemy(enseq: (Enemy, Seq[Spell])): Seq[(Enemy, Seq[Spell])] = {
+    if (enseq._1.hp > 0) {
+      step(enseq._1).map(ensp => ensp._1 -> (ensp._2 +: enseq._2))
+    } else Seq(enseq)
+  }
+
+
+
 
   ////////////////////////////////////////////////////////////////////////
 
