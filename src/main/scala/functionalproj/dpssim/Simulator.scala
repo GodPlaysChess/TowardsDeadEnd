@@ -101,6 +101,26 @@ object Simulator {
   // traverse over List[StateE] => State[List[(Enemy, List[Spell])]
   // Then reduce State[List[A]] => State[A], by applying |(A, A) => A| OR |A => B, Monoid[B]|
 
+  //** Definetly Monad should be involved to define a flow. For example, enemy Monad.
+  // Like Writer monad, where Enemy is a value, and Seq of applied spells is Log
+  //
+  def spellBind(es: (Enemy, Spell))(f: Enemy => (Enemy, List[Spell])): (Enemy, List[Spell]) = {
+    val (e, l) = f(es._1)
+    e -> (es._2 :: l)
+  }
+
+  val stepF: Enemy => (Enemy, List[Spell]) = {
+//    import Data.Monoid
+//
+//    type Food = String
+//    type Price = Sum Int
+//
+//      addDrink :: Food -> (Food,Price)
+//    addDrink "beans" = ("milk", Sum 25)
+//    addDrink "jerky" = ("whiskey", Sum 99)
+//    addDrink _ = ("beer", Sum 30)
+  }
+
   def fancyFindStrategy(enemy: Enemy): List[Spell] = ???
 
   def step(stateE: StateE): List[StateE] = ???
@@ -111,6 +131,12 @@ object Simulator {
     e = es._1; s = es._2
     enemy <- put(hpLens.mod(_ - input.foldMap(_.dmg), e) -> (s ++ input))
   } yield !e.isDead
+
+  def simulateSeq1(input: List[Spell]): State[Enemy, List[Spell]] =
+    for {
+      e <- get[Enemy]
+      en <- put(hpLens.mod(_ - input.foldMap(_.dmg), e))
+    } yield input
 
   // state: S.run(enemy) yields
   def simulate(input: List[Spell]): State[Enemy, Boolean] = {
@@ -123,7 +149,7 @@ object Simulator {
   def applySpell(sp: Spell): State[Enemy, Boolean] = for {
     s <- State.get[Enemy]
     alive = if (s.hp - sp.dmg > 0) true else false
-    enemy <- State.put(Enemy(s.hp - sp.dmg, s.effects ++ sp.effects)) // here we're chaining the state
+    enemy <- State.put(Enemy(s.hp - sp.dmg/*, s.effects ++ sp.effects*/)) // here we're chaining the state
   } yield alive // this value we're returning.
 
 

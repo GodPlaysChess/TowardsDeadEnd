@@ -15,6 +15,7 @@ object Main {
 //    } yield ()
 //    io.run()
     println(Simulator.simulateSeq(List(ShadowBolt())).run(en -> List(SearingPain())))
+    println(Simulator.simulateSeq1(List(ShadowBolt())).run(en))
 
 //    println(Simulator.applySpell(ShadowBolt()).eval(en))
 //    println(Simulator.simulate(List(ShadowBolt(), ShadowBolt())).run(en))
