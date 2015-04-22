@@ -13,7 +13,6 @@ import scalaz.{Monoid, State, _}
  */
 
 object Simulator {
-  type StateEnemy[A] = State[Enemy, A]
 
   implicit object Conjunction extends Monoid[Boolean] {
     override def zero: Boolean = true
@@ -43,9 +42,9 @@ object Simulator {
     seq.minBy(_.foldLeft(0d)(_ + _.castTime))
 
   // using foldMap and min Monoid:
-//  def _findBest(seq: Seq[Seq[Spell]]): Seq[Spell] = {
-//    Foldable[Seq].minimumBy(seq)(inner => Foldable[Seq].foldMap(inner)(_.castTime)).getOrElse(Seq.empty)
-//  }
+  //  def _findBest(seq: Seq[Seq[Spell]]): Seq[Spell] = {
+  //    Foldable[Seq].minimumBy(seq)(inner => Foldable[Seq].foldMap(inner)(_.castTime)).getOrElse(Seq.empty)
+  //  }
 
   // should be state, but let's make it work first in functional but in non-monadic way
   def step(enemy: Enemy): Seq[(Enemy, Spell)] =
@@ -60,7 +59,14 @@ object Simulator {
 
   // using lens
   def _applySpellLens(enemy: Enemy, spell: Spell): (Enemy, Spell) =
-    castSpell(enemy, spell) -> spell
+    hpLens.mod(_ - spell.dmg, enemy) -> spell
+
+  //set: (A, B) => A,
+  //get: A => B
+  val hpLens: Lens[Enemy, Double] = Lens.lensu[Enemy, Double](
+    (e, newhp) => e.copy(hp = newhp),
+    _.hp
+  )
 
   /** returns sequence of sequences of spells which kills the enemy */
   // LENS here
@@ -94,7 +100,9 @@ object Simulator {
   ////////////////////////// Fancy functional way /////////////////////////////////////////////
   // S => (A, S)  ==  Enemy => (Seq[Spell], Enemy)
   type Live = Boolean
-  type StateE = State[(Enemy, List[Spell]), Live]                          // or [(Enemy, (Boolean, List[Spell])] or (Enemy -> List[Spell], Boolean -> List[Spell])
+  type StateE = State[(Enemy, List[Spell]), Live]
+  // or [(Enemy, (Boolean, List[Spell])] or (Enemy -> List[Spell], Boolean -> List[Spell])
+  type StateEnemy[A] = State[Enemy, A]
 
   // apply spell results in a list of StateE s.
   // >>= works the way, that spell is applied only if Enemy.alive
@@ -109,28 +117,51 @@ object Simulator {
     e -> (es._2 :: l)
   }
 
-  val stepF: Enemy => (Enemy, List[Spell]) = {
-//    import Data.Monoid
-//
-//    type Food = String
-//    type Price = Sum Int
-//
-//      addDrink :: Food -> (Food,Price)
-//    addDrink "beans" = ("milk", Sum 25)
-//    addDrink "jerky" = ("whiskey", Sum 99)
-//    addDrink _ = ("beer", Sum 30)
-  }
+  val stepF: Enemy => List[(Enemy, Spell)] = e =>
+    List(e -> ShadowBolt(), e -> SearingPain())
+
+  // Actually I need something like  *combine*: (List[E, List[A]])(E => List[E, A]): List[E, List[A]]
+  //
+
+  def combine[E, A](li: List[(E, List[A])])(f: E => List[(E, A)]): List[(E, List[A])] = ???
+//    li.flatMap{ case (e, l) => f(e)}
+  // List[E, A] |+| List[A] => List[E, List[A]]
+
+  val spells = List(ShadowBolt(), SearingPain())
+
+  def combine1[E, A](li: List[(E, List[A])])(f: List[A])(p: E => Boolean): List[(E, List[A])] = for {
+      sp <- f
+      esp <- li
+    } yield {
+      if (p(esp._1)) esp._1 -> (sp :: esp._2)
+      else esp._1 -> esp._2
+    }
+
+  def giveMeEnemyAndICalculateYouAllRes(en: Enemy): List[(Enemy, List[Spell])] =
+    combine1(List(en -> List.empty[Spell]))(spells)(_.isDead)
+
+
+  /*    import Data.Monoid
+
+    type Food = String
+    type Price = Sum Int
+
+      addDrink :: Food -> (Food,Price)
+    addDrink "beans" = ("milk", Sum 25)
+    addDrink "jerky" = ("whiskey", Sum 99)
+    addDrink _ = ("beer", Sum 30)
+    */
 
   def fancyFindStrategy(enemy: Enemy): List[Spell] = ???
 
   def step(stateE: StateE): List[StateE] = ???
 
   def simulateSeq(input: List[Spell]): State[(Enemy, List[Spell]), Live] =
-  for {
-    es <- get[(Enemy, List[Spell])]
-    e = es._1; s = es._2
-    enemy <- put(hpLens.mod(_ - input.foldMap(_.dmg), e) -> (s ++ input))
-  } yield !e.isDead
+    for {
+      es <- get[(Enemy, List[Spell])]
+      e = es._1; s = es._2
+      enemy <- put(hpLens.mod(_ - input.foldMap(_.dmg), e) -> (s ++ input))
+    } yield !e.isDead
 
   def simulateSeq1(input: List[Spell]): State[Enemy, List[Spell]] =
     for {
@@ -140,38 +171,26 @@ object Simulator {
 
   // state: S.run(enemy) yields
   def simulate(input: List[Spell]): State[Enemy, Boolean] = {
-    val sts: List[State[Enemy, Boolean]] = input.map(applySpell)
-    val b: StateEnemy[List[Boolean]] = sts.sequence[StateEnemy, Boolean]
-    b.map(_.suml)
+    val sts: List[State[Enemy, Boolean]] = input.map(applySpell) // applies the sequence of spells to enemy, tracks down the after each application, whether enemy is alive
+    val b: StateEnemy[List[Boolean]] = sts.sequence[StateEnemy, Boolean] // List[State[Enemy, Boolean] -> State[Enemy, List[Boolean]]
+    b.map(_.suml) // reduces the list with conjunction monoid
   }
 
   // neeed to apply spell using State.modify
   def applySpell(sp: Spell): State[Enemy, Boolean] = for {
     s <- State.get[Enemy]
     alive = if (s.hp - sp.dmg > 0) true else false
-    enemy <- State.put(Enemy(s.hp - sp.dmg/*, s.effects ++ sp.effects*/)) // here we're chaining the state
+    enemy <- State.put(Enemy(s.hp - sp.dmg /*, s.effects ++ sp.effects*/)) // here we're chaining the state
   } yield alive // this value we're returning.
 
 
-  //set: (A, B) => A,
-  //get: A => B
-  val hpLens: Lens[Enemy, Double] = Lens.lensu[Enemy, Double] (
-    (e, newhp) => e.copy(hp = newhp),
-    _.hp
-  )
-
-  // the same as apply spell, but using Lens
-  def castSpell(en: Enemy, sp: Spell): Enemy = {
+  def castSpell(en: Enemy, sp: Spell): Enemy =
     hpLens.mod(_ - sp.dmg, en)
-  }
 
   def _applySpell(sp: Spell, en: Enemy): (Enemy, Boolean) = {
     val enemy = castSpell(en, sp)
     enemy -> (enemy.hp <= 0)
   }
-
-
-
 
 
   /**
@@ -184,31 +203,11 @@ object Simulator {
    */
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   def appendSpellForEveryLivingEnemy(enseq: (Enemy, Seq[Spell])): Seq[(Enemy, Seq[Spell])] = {
     if (enseq._1.hp > 0) {
       step(enseq._1).map(ensp => ensp._1 -> (ensp._2 +: enseq._2))
     } else Seq(enseq)
   }
-
-
 
 
   ////////////////////////////////////////////////////////////////////////
