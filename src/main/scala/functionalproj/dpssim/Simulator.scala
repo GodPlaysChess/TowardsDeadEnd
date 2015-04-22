@@ -1,7 +1,7 @@
 package functionalproj.dpssim
 
 import scalaz.Scalaz._
-import scalaz.{Foldable, Monoid, State, _}
+import scalaz.{Monoid, State, _}
 
 
 /**
@@ -21,10 +21,16 @@ object Simulator {
     override def append(f1: Boolean, f2: => Boolean): Boolean = f1 && f2
   }
 
-  implicit val minDoubleMonoid = new Monoid[Double] {
+  val minDoubleMonoid = new Monoid[Double] {
     override def zero: Double = 0d
 
     override def append(f1: Double, f2: => Double): Double = f1 min f2
+  }
+
+  implicit val sumMonoid = new Monoid[Double] {
+    override def zero: Double = 0d
+
+    override def append(f1: Double, f2: => Double): Double = f1 + f2
   }
 
   /* Standard functional way */
@@ -37,9 +43,9 @@ object Simulator {
     seq.minBy(_.foldLeft(0d)(_ + _.castTime))
 
   // using foldMap and min Monoid:
-  def _findBest(seq: Seq[Seq[Spell]]): Seq[Spell] = {
-    Foldable[Seq].minimumBy(seq)(inner => Foldable[Seq].foldMap(inner)(_.castTime)).getOrElse(Seq.empty)
-  }
+//  def _findBest(seq: Seq[Seq[Spell]]): Seq[Spell] = {
+//    Foldable[Seq].minimumBy(seq)(inner => Foldable[Seq].foldMap(inner)(_.castTime)).getOrElse(Seq.empty)
+//  }
 
   // should be state, but let's make it work first in functional but in non-monadic way
   def step(enemy: Enemy): Seq[(Enemy, Spell)] =
@@ -86,9 +92,27 @@ object Simulator {
   }
 
   ////////////////////////// Fancy functional way /////////////////////////////////////////////
+  // S => (A, S)  ==  Enemy => (Seq[Spell], Enemy)
+  type Live = Boolean
+  type StateE = State[(Enemy, List[Spell]), Live]                          // or [(Enemy, (Boolean, List[Spell])] or (Enemy -> List[Spell], Boolean -> List[Spell])
+
+  // apply spell results in a list of StateE s.
+  // >>= works the way, that spell is applied only if Enemy.alive
+  // traverse over List[StateE] => State[List[(Enemy, List[Spell])]
+  // Then reduce State[List[A]] => State[A], by applying |(A, A) => A| OR |A => B, Monoid[B]|
 
   def fancyFindStrategy(enemy: Enemy): List[Spell] = ???
 
+  def step(stateE: StateE): List[StateE] = ???
+
+  def simulateSeq(input: List[Spell]): State[(Enemy, List[Spell]), Live] =
+  for {
+    es <- get[(Enemy, List[Spell])]
+    e = es._1; s = es._2
+    enemy <- put(hpLens.mod(_ - input.foldMap(_.dmg), e) -> (s ++ input))
+  } yield !e.isDead
+
+  // state: S.run(enemy) yields
   def simulate(input: List[Spell]): State[Enemy, Boolean] = {
     val sts: List[State[Enemy, Boolean]] = input.map(applySpell)
     val b: StateEnemy[List[Boolean]] = sts.sequence[StateEnemy, Boolean]
