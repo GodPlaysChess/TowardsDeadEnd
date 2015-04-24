@@ -33,8 +33,6 @@ object Simulator {
     override def append(f1: Double, f2: => Double): Double = f1 + f2
   }
 
-  /* Standard functional way */
-
   def findStrategy(enemy: Enemy): Seq[Spell] =
     findBest(runViaFor(enemy))
 
