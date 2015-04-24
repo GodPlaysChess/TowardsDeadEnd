@@ -18,3 +18,5 @@ libraryDependencies += "org.scalatest" % "scalatest_2.11" % "2.2.1" % "test"
 libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.1"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.12.2" % "test"
+
+scalacOptions += "-feature"

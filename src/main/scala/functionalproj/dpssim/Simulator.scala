@@ -1,5 +1,6 @@
 package functionalproj.dpssim
 
+import scala.language.reflectiveCalls
 import scalaz.Scalaz._
 import scalaz.{Monoid, State, _}
 
@@ -97,7 +98,7 @@ object Simulator {
     go(Seq(enemy -> Seq.empty)).map(_._2)
   }
 
-  ////////////////////////// Fancy functional way /////////////////////////////////////////////
+  ////////////////////////// Fancy functional way /////////////////////////////////////////////  TODO try to replace tuples with functions (A, B) <~> A => B
   // S => (A, S)  ==  Enemy => (Seq[Spell], Enemy)
   type Live = Boolean
   type StateE = State[(Enemy, List[Spell]), Live]
@@ -124,15 +125,16 @@ object Simulator {
   //
 
   def combine[E, A](li: List[(E, List[A])])(f: E => List[(E, A)]): List[(E, List[A])] = ???
-//    li.flatMap{ case (e, l) => f(e)}
+
+  //    li.flatMap{ case (e, l) => f(e)}
   // List[E, A] |+| List[A] => List[E, List[A]]
 
   val spells = List(ShadowBolt(), SearingPain())
 
   def combine1[E, A](li: List[(E, List[A])])(f: List[A])(p: E => Boolean): List[(E, List[A])] = for {
-      sp <- f
-      esp <- li
-    } yield {
+    sp <- f
+    esp <- li
+  } yield {
       if (p(esp._1)) esp._1 -> (sp :: esp._2)
       else esp._1 -> esp._2
     }
@@ -140,8 +142,33 @@ object Simulator {
   def giveMeEnemyAndICalculateYouAllRes(en: Enemy): List[(Enemy, List[Spell])] =
     combine1(List(en -> List.empty[Spell]))(spells)(_.isDead)
 
+  def findStrategy2(enemy: Enemy): List[Spell] = {
+//    val x: List[(Enemy, List[Spell])] = giveMeEnemyAndICalculateYouAllRes(enemy)
+//    val xx: ListOps[(Enemy, List[Spell])] = Scalaz.TOFo(x)
+//    val t = enSpellSemigroup.foldl1(x)
+//    val y: (Enemy, List[Spell]) = Foldable1[List](ListFoldable).suml1(enSpellSemigroup)
+//    val y: (Enemy, List[Spell]) = Foldable1[List].fold1(x)(enSpellSemigroup)
+//    y._2
+    ???
+  }
+  // Semigroup -> OptionMonoid
+  // if semgigroup defined through the monoid, probably we may combine them. // modularity, heh?      //ToDo look at OneAndFoldable
+  implicit val enSpellSemigroup: Semigroup[(Enemy, List[Spell])] = new Semigroup[(Enemy, List[Spell])] {
+    //using implicit sum Monoid
+    override def append(f1: (Enemy, List[Spell]), f2: => (Enemy, List[Spell])): (Enemy, List[Spell]) =
+      if (f1._2.foldMap(_.dmg) > f2._2.foldMap(_.dmg)) f1 else f2
+  }
 
-  /*    import Data.Monoid
+
+
+
+
+
+
+  /*
+  SequenceComputationMonad[Comput[Enemy]]
+
+  import Data.Monoid
 
     type Food = String
     type Price = Sum Int
