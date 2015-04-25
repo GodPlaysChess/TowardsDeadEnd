@@ -3,6 +3,7 @@ package functionalproj.dpssim
 import scalaz._
 import Scalaz._
 
+// using states
 object DpsSimStates {
   implicit val sumMonoid = new Monoid[Double] {
     override def zero: Double = 0d
@@ -32,9 +33,9 @@ object DpsSimStates {
     !p(esp._1) ? (mod(sp).exec(esp._1) -> (sp :: esp._2)) | esp
 
   /** combines until certain condition is met */
-  def combineUntil[E, A](li: NonEmptyList[(E, List[A])], f: NonEmptyList[A])(stMod: A => State[E, Unit])(p: E => Boolean): NonEmptyList[(E, List[A])] = {
-    val c = combine1(li, f)(stMod)(p)
-    c.all(e => p(e._1)) ? c | combineUntil(c, f)(stMod)(p)
+  def combineUntil[E, A](li: NonEmptyList[(E, List[A])], f: NonEmptyList[A])(mod: A => State[E, Unit])(p: E => Boolean): NonEmptyList[(E, List[A])] = {
+    val c = combine1(li, f)(mod)(p)
+    c.all(e => p(e._1)) ? c | combineUntil(c, f)(mod)(p)
   }
 
   def allSequences(en: Enemy): NonEmptyList[(Enemy, List[Spell])] =
@@ -42,8 +43,4 @@ object DpsSimStates {
 
   def findStrategy(enemy: Enemy): List[Spell] =
     Foldable1[NonEmptyList].fold1(allSequences(enemy))._2
-
-  def main(args: Array[String]) {
-    println("Strategy: " + findStrategy(Enemy(100)).mkString(" -> "))
-  }
 }

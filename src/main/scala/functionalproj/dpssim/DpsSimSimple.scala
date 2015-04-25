@@ -1,20 +1,6 @@
 package functionalproj.dpssim
 
-import scalaz._
-
 object DpsSimSimple {
-
-  val minDoubleMonoid = new Monoid[Double] {
-    override def zero: Double = 0d
-
-    override def append(f1: Double, f2: => Double): Double = f1 min f2
-  }
-
-  implicit val sumMonoid = new Monoid[Double] {
-    override def zero: Double = 0d
-
-    override def append(f1: Double, f2: => Double): Double = f1 + f2
-  }
 
   def findStrategy(enemy: Enemy): Seq[Spell] =
     findBest(runViaFor(enemy))
@@ -28,7 +14,6 @@ object DpsSimSimple {
       applySpell(enemy, SearingPain())
     )
 
-  // easy way
   private def applySpell(enemy: Enemy, spell: Spell): (Enemy, Spell) =
     enemy.copy(enemy.hp - spell.dmg) -> spell
 

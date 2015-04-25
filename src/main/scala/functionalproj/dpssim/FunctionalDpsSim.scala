@@ -1,9 +1,9 @@
 package functionalproj.dpssim
 
-import scalaz.Scalaz._
 import scalaz._
+import Scalaz._
 
-// Fancy funcitonal approach for findSequence
+// Using lenses, monoids and Nels
 object FunctionalDpsSim {
   implicit val sumMonoid = new Monoid[Double] {
     override def zero: Double = 0d
@@ -51,8 +51,5 @@ object FunctionalDpsSim {
   def findStrategy(enemy: Enemy): List[Spell] =
     Foldable1[NonEmptyList].fold1(allSequences(enemy))._2
 
-  def main(args: Array[String]) {
-    println("Strategy: " + findStrategy(Enemy(100)).mkString(" -> "))
-  }
 }
 
