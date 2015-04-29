@@ -1,5 +1,7 @@
 package functionalproj.dpssim
 
+import scalaz.{State, NonEmptyList}
+
 object Main {
 
   def main(args: Array[String]) {
@@ -17,8 +19,9 @@ object Main {
 //    println(Simulator.applySpell(ShadowBolt()).eval(en))
 //    println(Simulator.simulate(List(ShadowBolt(), ShadowBolt())).run(en))
 //    println(Simulator.simulate(List(SearingPain(), SearingPain())).run(en))
-    println(makeString(DpsSimSimple.findStrategy(en)))
-    println(makeString(FunctionalDpsSim.findStrategy(en)))
+
+//    println(makeString(DpsSimSimple.findStrategy(en)))
+//    println(makeString(FunctionalDpsSim.findStrategy(en)))
     println(makeString(DpsSimStates.findStrategy(en)))
   }
 

@@ -26,7 +26,6 @@ object Arrays {
     input.slice(from, to + 1)
   }
 
-  //TODO implement more functionally
   private def findMaxCrossingSubarray(array: Array[Int], low: Int, mid: Int, high: Int): (Int, Int, Int) = {
     var leftSum = Int.MinValue
     var sum = 0
