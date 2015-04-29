@@ -53,7 +53,11 @@ object DpsSimStates {
   }
 
   def foldStates(in: NonEmptyList[State[NonEmptyList[(Enemy, List[Spell])], Boolean]]): State[NonEmptyList[(Enemy, List[Spell])], Boolean] = {
-    in.foldLeft1((s1, s2) => State(e => s2(s1(e)._1)))
+    in.foldLeft1((s1, s2) => State(e => {
+      val seq1 = s1(e)
+      val seq2 = s2(e)
+      seq1._1.append(seq2._1) -> (seq1._2 && seq2._2)
+    }))
   }
 
   def map2[S, A](sa: State[S, A], sb: State[S, A])(g: (S, S) => S)(f: (A, A) => A): State[S, A] =
