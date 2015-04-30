@@ -22,7 +22,7 @@ object DpsSimStatesV2 {
     _.hp
   )
 
-  def combineS1(spell: Spell): State[(NonEmptyList[(Enemy, List[Spell])]), Boolean] = for {
+  def simulateSpell(spell: Spell): State[(NonEmptyList[(Enemy, List[Spell])]), Boolean] = for {
     _ <- modify[NonEmptyList[(Enemy, List[Spell])]](_.map { case tuple@(e, sp) =>
       !e.isDead ? (hpLens.mod(_ - spell.dmg, e) -> (spell :: sp)) | tuple
     })
@@ -30,10 +30,10 @@ object DpsSimStatesV2 {
     allDead = a.all(_._1.isDead)
   } yield allDead
 
-  def combineS(variations: NonEmptyList[Spell]): State[NonEmptyList[(Enemy, List[Spell])], Boolean] =
-    foldStates(variations map combineS1)
+  def step(variations: NonEmptyList[Spell]): State[NonEmptyList[(Enemy, List[Spell])], Boolean] =
+    combine(variations map simulateSpell)
 
-  def foldStates(in: NonEmptyList[State[NonEmptyList[(Enemy, List[Spell])], Boolean]]): State[NonEmptyList[(Enemy, List[Spell])], Boolean] = {
+  def combine(in: NonEmptyList[State[NonEmptyList[(Enemy, List[Spell])], Boolean]]): State[NonEmptyList[(Enemy, List[Spell])], Boolean] = {
     in.foldLeft1((s1, s2) => State(e => {
       val seq1 = s1(e)
       val seq2 = s2(e)
@@ -43,7 +43,7 @@ object DpsSimStatesV2 {
 
   def allSequences(en: Enemy, spells: NonEmptyList[Spell]): NonEmptyList[(Enemy, List[Spell])] = {
     val StateX = StateT.stateMonad[NonEmptyList[(Enemy, List[Spell])]]
-    StateX.untilM_(get, combineS(spells)).exec(NonEmptyList(en -> List.empty))
+    StateX.untilM_(get, step(spells)).exec(NonEmptyList(en -> List.empty))
   }
 
   def findStrategy(enemy: Enemy, spells: NonEmptyList[Spell]): List[Spell] =
