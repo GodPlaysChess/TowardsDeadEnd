@@ -1,9 +1,12 @@
 package functionalproj.dpssim
 
+import scalaz.NonEmptyList
+
 object Main {
 
   def main(args: Array[String]) {
     val en = Enemy(100)
+    val spells = NonEmptyList(ShadowBolt(), SearingPain())
 //    val io1 = for {
 //      _ <- IOActions.PrintLine(Simulator.findStrategy(en))
 //    } yield ()
@@ -21,7 +24,7 @@ object Main {
 //    println(makeString(DpsSimSimple.findStrategy(en)))
 //    println(makeString(FunctionalDpsSim.findStrategy(en)))
     println(makeString(DpsSimStates.findStrategy(en)))
-    println(makeString(DpsSimStatesV2.findStrategy(en)))
+    println(makeString(DpsSimStatesV2.findStrategy(en, spells)))
   }
 
   def makeString(s: Seq[Spell]): String =

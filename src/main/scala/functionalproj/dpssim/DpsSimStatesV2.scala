@@ -22,8 +22,6 @@ object DpsSimStatesV2 {
     _.hp
   )
 
-  val spells = NonEmptyList(ShadowBolt(), SearingPain())
-
   def combineS1(spell: Spell): State[(NonEmptyList[(Enemy, List[Spell])]), Boolean] = for {
     _ <- modify[NonEmptyList[(Enemy, List[Spell])]](_.map { case tuple@(e, sp) =>
       !e.isDead ? (hpLens.mod(_ - spell.dmg, e) -> (spell :: sp)) | tuple
@@ -43,12 +41,12 @@ object DpsSimStatesV2 {
     }))
   }
 
-  def allSequences(en: Enemy): NonEmptyList[(Enemy, List[Spell])] = {
+  def allSequences(en: Enemy, spells: NonEmptyList[Spell]): NonEmptyList[(Enemy, List[Spell])] = {
     val StateX = StateT.stateMonad[NonEmptyList[(Enemy, List[Spell])]]
-    StateX.untilM_(get, combineS(spells)).exec(NonEmptyList(en -> List()))
+    StateX.untilM_(get, combineS(spells)).exec(NonEmptyList(en -> List.empty))
   }
 
-  def findStrategy(enemy: Enemy): List[Spell] =
-    Foldable1[NonEmptyList].fold1(allSequences(enemy))._2
+  def findStrategy(enemy: Enemy, spells: NonEmptyList[Spell]): List[Spell] =
+    Foldable1[NonEmptyList].fold1(allSequences(enemy, spells))._2
 
 }
