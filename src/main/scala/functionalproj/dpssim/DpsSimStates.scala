@@ -35,42 +35,6 @@ object DpsSimStates {
 
   val spells = NonEmptyList(ShadowBolt() , SearingPain())
 
-  // give me spell, and I apply it to your every enemy if he's still alive (and append it to list of applied spells)
-  def combineS1(spell: Spell): State[(NonEmptyList[(Enemy, List[Spell])]), Boolean] = for {
-    _ <- modify[NonEmptyList[(Enemy, List[Spell])]](_.map { case tuple@(e, sp) =>
-      !e.isDead ? (hpLens.mod(_ - spell.dmg, e) -> (spell :: sp)) | tuple
-    })
-    a <- get[NonEmptyList[(Enemy, List[Spell])]]
-    allDead = a.all(_._1.isDead)
-  } yield allDead
-
-  def combineS(variations: NonEmptyList[Spell]): State[NonEmptyList[(Enemy, List[Spell])], AllDead] = {
-    val x: NonEmptyList[State[NonEmptyList[(Enemy, List[Spell])], Boolean]] = variations map combineS1 // if down below solution is not correct - then work on this one. (fold and sum with concatenate)\
-    val x1: State[NonEmptyList[(Enemy, List[Spell])], AllDead] = foldStates(x)                     // yes, traverse does exactly this. It applies the states sequentially. It actually folds states, by appending the list of spells. But i need branching there
-    val y: State[NonEmptyList[(Enemy, List[Spell])], NonEmptyList[Boolean]] = variations.traverseS(combineS1) // consider this is correct. should be V map combineS1 . sequence
-    y.map(_.suml1(booleanInstance.conjunction))
-    x1
-  }
-
-  def foldStates(in: NonEmptyList[State[NonEmptyList[(Enemy, List[Spell])], Boolean]]): State[NonEmptyList[(Enemy, List[Spell])], Boolean] = {
-    in.foldLeft1((s1, s2) => State(e => {
-      val seq1 = s1(e)
-      val seq2 = s2(e)
-      seq1._1.append(seq2._1) -> (seq1._2 && seq2._2)
-    }))
-  }
-
-  def map2[S, A](sa: State[S, A], sb: State[S, A])(g: (S, S) => S)(f: (A, A) => A): State[S, A] =
-    sa.flatMap(a => sb.map(f(a, _)))
-
-  def allSequences1(en: Enemy): NonEmptyList[(Enemy, List[Spell])] = {
-    val StateX = StateT.stateMonad[NonEmptyList[(Enemy, List[Spell])]]
-    val x = StateX.untilM_(gets(_.all(_._1.isDead)), combineS(spells)).exec(NonEmptyList(en -> List()))
-//    val x = combineS(spells).run(NonEmptyList(en -> List()))
-    println(x)
-    x
-  }
-
   def combine1[E, A](li: NonEmptyList[(E, List[A])], variations: NonEmptyList[A])(mod: A => State[E, Boolean]): NonEmptyList[(E, List[A])] = for {
     e0_sp <- li
     sp <- variations
@@ -78,8 +42,6 @@ object DpsSimStates {
   } yield
     p ? (e1 -> (sp :: e0_sp._2)) | e0_sp
 
-  /** combines until certain condition is met */
-  //TODO p is the same as in mod. Can unify it.
   def combineUntil[E, A](start: NonEmptyList[(E, List[A])], variations: NonEmptyList[A])(mod: A => State[E, Boolean])(p: E => Boolean): NonEmptyList[(E, List[A])] = {
     val c = combine1(start, variations)(mod)
     c.all(e => p(e._1)) ? c | combineUntil(c, variations)(mod)(p)
@@ -89,5 +51,5 @@ object DpsSimStates {
     combineUntil(NonEmptyList(en -> List.empty[Spell]), spells)(damState)(_.isDead)
 
   def findStrategy(enemy: Enemy): List[Spell] =
-    Foldable1[NonEmptyList].fold1(allSequences1(enemy))._2
+    Foldable1[NonEmptyList].fold1(allSequences(enemy))._2
 }
