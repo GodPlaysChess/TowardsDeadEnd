@@ -3,7 +3,7 @@ package functionalproj.dpssim
 import scalaz.Scalaz._
 import scalaz._
 
-object DpsSimStatesV2 {
+object DpsSimStatesDynamicProgr {
   type Hp = Double
 
   implicit val sumMonoid = new Monoid[Double] {
@@ -48,5 +48,14 @@ object DpsSimStatesV2 {
 
   def findStrategy(enemy: Enemy, spells: NonEmptyList[Spell]): List[Spell] =
     Foldable1[NonEmptyList].fold1(allSequences(enemy, spells))._2
+
+  def findAllStrategiesDyn(enemy: Enemy, strategy: List[Spell]): (Enemy, List[Spell]) = ???
+
+  // yields enemy with +1hp. Gets old enemy.
+//  def findAllStrategiesDyn(enemy: Enemy): State[List[Spell], Enemy] = for {
+//    strategy1 <- get[List[Spell]]
+//
+//  }
+
 
 }

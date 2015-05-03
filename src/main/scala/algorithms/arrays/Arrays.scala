@@ -50,5 +50,18 @@ object Arrays {
     (maxLeft, maxRight, leftSum + rightSum)
   }
 
+  def permutations[A](li: List[A]): List[List[A]] = {
+    def step(li: List[A], th: List[List[A]]): List[List[A]] = li match {
+      case Nil => th
+      case l@(x :: xs) => l.flatMap(el => step(l.filterNot(_ == el), th.map(s => el :: s)))
+
+    }
+    step(li, List(List.empty))
+  }
+
+  def main(args: Array[String]) {
+    println(permutations(List(1, 2, 3)))
+  }
+
 
 }
