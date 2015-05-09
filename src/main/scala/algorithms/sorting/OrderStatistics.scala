@@ -5,15 +5,26 @@ package algorithms.sorting
  */
 object OrderStatistics {
 
-  def minAndMax[T <% Ordered[T]](list: List[T]): (T, T) = {
+  def minAndMax[T](list: List[T])(implicit ev1: T => Ordered[T]): (T, T) = {
     if (list.isEmpty) throw new Error("List is empty")
     minAndMax(list, list(0), list(0))
   }
 
+  def isSorted[A](as: Array[A], ordered :  (A,A) => Boolean) : Boolean =
+  {
+    def doSorted(i: Int) : Boolean =
+      if (i >= as.length-1) true
+      else if (ordered(as(i), as(i+1))) false
+      else doSorted(i+1)
+
+    doSorted(0)
+  }
+  def x = isSorted(Array(1,2,3,4,5,6), ((_: Int) > (_: Int)))
+
   /**
    * returns min element and max element from a list, using 3*n/2 comparisons
    */
-  private def minAndMax[T <% Ordered[T]](list: List[T], min: T, max: T): (T, T) = list match {
+  private def minAndMax[T](list: List[T], min: T, max: T)(implicit ev1: T => Ordered[T]): (T, T) = list match {
     case Nil => (min, max)
     case x :: Nil => if (x < min) (x, max) else if (x > max) (min, x) else (min, max)
     case x :: y :: xs =>
@@ -24,6 +35,7 @@ object OrderStatistics {
   }
 
   def randomizedSelect[T <% Ordered[T]](array: Array[T], i: Int): T = {
+    val t: Boolean = array(0) > array(1)
     randomizedSelect(array, 0, array.length, i)
   }
 

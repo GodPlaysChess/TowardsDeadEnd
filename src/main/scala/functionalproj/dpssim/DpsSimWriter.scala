@@ -43,7 +43,6 @@ object DpsSimWriter {
     )
 
 
-
   def main(args: Array[String]) {
     val e0 = Enemy(100)
     val log = logSpells(NonEmptyList(ShadowBolt(), SearingPain()), e0)
