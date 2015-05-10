@@ -38,7 +38,7 @@ case class Branch[T, A](t: T, left: FingerTree[T, A], right: FingerTree[T, A]) e
 
 
 object ExampleFingerTree extends App {
-//  implicit val M = Monoid[Int].instance(_ + _, 0)
+//  winner t = search (== measure t)
   val ftree: FingerTree[Int, String] = Branch(5,
     Branch(2, Leaf(1, "a0"), Leaf(1, "ab1")),
     Branch(3, Leaf(1, "abc2"),
