@@ -55,20 +55,21 @@ object LongestPalindrome {
 
   def main(args: Array[String]) {
     println(longestPalyndrome("character"))
-    println(new LongestPalindrome().lpDynamic("character"))
-//    println(longestPalyndrome(
-//      """
-//        |fds;fksdfphello
-//        | */
-//        |public class DateModel extends DefaultReinitializableModel<Calendar> {
-//        |	private final DateFormat dateFormat;
-//        |
-//        |	public DateModel(Calendar initialValue, @Nonnull DateFormat dateFormat) {
-//        |		super(initialValue);
-//        |		this.dateFormat = checkNotNull(dateFormat, "dateFormat");
-//
-//        |
-//      """.stripMargin))
+//    println(new LongestPalindrome().lpDynamic("character"))
+    val L = new LongestPalindrome()
+    println(L.lpDynamic(
+      """
+        |fds;fksdfphello
+        | */
+        |public class DateModel extends DefaultReinitializableModel<Calendar> {
+        |	private final DateFormat dateFormat;
+        |
+        |	public DateModel(Calendar initialValue, @Nonnull DateFormat dateFormat) {
+        |		super(initialValue);
+        |		this.dateFormat = checkNotNull(dateFormat, "dateFormat");
+
+        |
+      """.stripMargin))
   }
 
 }
@@ -84,7 +85,8 @@ class LongestPalindrome {
   private def longestPalindrome(s: Int, e: Int, in: String): Unit = {
     if (s == e || s + 1 == e && !all.contains(s → e)) all put (s → e, in.substring(s, e + 1))
     else {
-      val (h, mid, l) = LongestPalindrome.split(in)
+      val h: String = in.charAt(s).toString
+      val l: String = in.charAt(e).toString
       if (h == l) {
         if (!all.contains((s + 1) → (e - 1))) {
           longestPalindrome(s + 1, e - 1, in)
