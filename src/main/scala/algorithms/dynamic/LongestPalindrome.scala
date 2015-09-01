@@ -7,14 +7,14 @@ import scala.collection.mutable
  */
 object LongestPalindrome {
 
-  // plain approach
-  def longestPalyndrome(in: String): String = {
+  // plain, but elegant ineffective functional approach
+  def longestPalindrome(in: String): String = {
     if (in.isEmpty) ""
     else if (in.length == 1) in
     else {
       val (h, mid, l) = split(in)
-      if (h == l) h + longestPalyndrome(mid) + l
-      else max(longestPalyndrome(h + mid), longestPalyndrome(mid + l))
+      if (h == l) h + longestPalindrome(mid) + l
+      else max(longestPalindrome(h + mid), longestPalindrome(mid + l))
     }
   }
 
@@ -67,7 +67,7 @@ object LongestPalindrome {
   }
 
   def main(args: Array[String]) {
-    println(longestPalyndrome("chaqracter"))
+    println(longestPalindrome("chaqracter"))
     println(longestPalyndromeDynamic("chaqracter"))
     val L = new LongestPalindrome()
     println(L.lpDynamic("chaqracter"))

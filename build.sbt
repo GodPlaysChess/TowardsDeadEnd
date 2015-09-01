@@ -21,8 +21,8 @@ libraryDependencies += "org.scalaz" %% "scalaz-core" % "7.1.1"
 
 libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.12.2" % "test"
 
-libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.3.9"
+libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.3.10"
 
-libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.3.9"
+libraryDependencies += "com.typesafe.akka" %% "akka-testkit" % "2.3.10"
 
 scalacOptions += "-feature"

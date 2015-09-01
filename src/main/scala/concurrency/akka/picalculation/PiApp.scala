@@ -3,7 +3,7 @@ package concurrency.akka.picalculation
 import akka.actor.{Props, ActorSystem}
 
 object PiApp extends App {
-  calculate(nrOfWorkers = 4, nrOfElements = 10000, nrOfMessages = 10000)
+  calculate(nrOfWorkers = 4, nrOfElements = 100, nrOfMessages = 1000)
 
   // actors and messages ...
 

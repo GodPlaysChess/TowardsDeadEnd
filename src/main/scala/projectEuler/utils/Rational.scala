@@ -1,5 +1,7 @@
 package projectEuler.utils
 
+import scala.language.implicitConversions
+
 class Rational(n: Long, d: Long) {
   require(d != 0)
 
@@ -32,7 +34,7 @@ class Rational(n: Long, d: Long) {
   def gcd(a: Long, b: Long): Long =
     if (b == 0) a else gcd(b, a % b)
 
-  implicit def intToRational(x: Int) = new Rational(x)
+  implicit def intToRational(x: Int): Rational = new Rational(x)
 
 
 }

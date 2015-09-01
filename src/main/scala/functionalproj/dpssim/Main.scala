@@ -32,3 +32,24 @@ object Main {
     s.mkString(" -> ")
 
 }
+
+/*
+  sealed trait WorldMonad[S] { // state thread s
+    private def blocks : Array[Byte]
+
+    def getBlockId(x:Int, y:Int) : ST[S, Byte]
+    def setBlockId(x:Int, y:Int, b:Byte) : ST[S, WorldMonad[S]]
+    def getEntity(entityId:Int) : ST[S, Entity]
+  }
+
+  // ST[S, A] is a "state transformer" roughly: S => (S, A)
+  // transforms state indexed by type S, delivers type A
+
+  object WorldMonad {
+    def apply[S](blocks:Array[Byte]) = new WorldMonad[S] {
+      val blocks = blocks
+    } // called once at the start of game to construct the world
+  }
+
+  def updateEntity[S](entity:Entity) : WorldMonad[S] => WorldMonad[S] // ???
+* */

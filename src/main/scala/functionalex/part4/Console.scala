@@ -9,6 +9,8 @@ sealed trait Console[A] {
   def toPar: Par[A]
 
   def toThunk: () => A
+
+  def toReader: ConsoleReader[A]
 }
 
 case object ReadLine extends Console[Option[String]] {
@@ -22,6 +24,7 @@ case object ReadLine extends Console[Option[String]] {
       case e: Exception => None
     }
 
+  override def toReader: ConsoleReader[Option[String]] = ???
 }
 
 case class PrintLine(line: String) extends Console[Unit] {
@@ -29,21 +32,34 @@ case class PrintLine(line: String) extends Console[Unit] {
 
   override def toThunk: () => Unit = () => println(line)
 
+  override def toReader: ConsoleReader[Unit] = ???
+
 }
 
 object Console {
   type ConsoleIO[A] = Free[Console, A]
 
+  val consoleToReader = new (Console ~> ConsoleReader) {
+    override def apply[A](f: Console[A]): ConsoleReader[A] = f.toReader
+  }
+
+  /*def runConsoleReader[A](io: ConsoleIO[A]): ConsoleReader[A] =
+    Free.runFree[Console, ConsoleReader, A](io)(consoleToReader)*/
+
   implicit val function0Monad = new Monad[Function0] {
     def unit[A](a: => A) = () => a
-    override def flatMap[A,B](a: Function0[A])(f: A => Function0[B]) =
+
+    override def flatMap[A, B](a: () ⇒ A)(f: A => (() ⇒ B)) =
       () => f(a())()
   }
 
   implicit val parMonad = new Monad[Par] {
     def unit[A](a: => A) = Par.unit(a)
-    override def flatMap[A,B](a: Par[A])(f: A => Par[B]) =
-      Par.fork { Par.flatMap(a)(f) }
+
+    override def flatMap[A, B](a: Par[A])(f: A => Par[B]) =
+      Par.fork {
+        Par.flatMap(a)(f)
+      }
   }
 
   def readLn: ConsoleIO[Option[String]] =
@@ -69,18 +85,20 @@ object Console {
     }
 
 
-  def translate[F[_],G[_],A](f: Free[F,A])(fg: F ~> G): Free[G,A] = {
+  def translate[F[_], G[_], A](f: Free[F, A])(fg: F ~> G): Free[G, A] = {
     type FreeG[A] = Free[G, A]
     val t = new (F ~> FreeG) {
-      def apply[A](a: F[A]): Free[G,A] = Suspend1[G, A](fg(a))
+      def apply[A](a: F[A]): Free[G, A] = Suspend1[G, A](fg(a))
     }
     Free.runFree[F, FreeG, A](f)(t)(Free.freeMonad[G])
   }
 
-  def runConsole[A](a: Free[Console,A]): A =
-    Free.runTrampoline { translate(a)(new (Console ~> Function0) {
-      def apply[A](c: Console[A]) = c.toThunk
-    })}
+  def runConsole[A](a: Free[Console, A]): A =
+    Free.runTrampoline {
+      translate(a)(new (Console ~> Function0) {
+        def apply[A](c: Console[A]) = c.toThunk
+      })
+    }
 
 
 }

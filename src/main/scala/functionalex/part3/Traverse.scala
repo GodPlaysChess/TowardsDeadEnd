@@ -2,6 +2,8 @@ package functionalex.part3
 
 import functionalex.part1.State
 
+import scala.language.implicitConversions
+
 trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
   self =>
 
@@ -76,7 +78,7 @@ trait Traverse[F[_]] extends Functor[F] with Foldable[F] {
 
 
 
-  implicit def monoidApplicative[M](M: Monoid[M]) =
+  implicit def monoidApplicative[M](M: Monoid[M]): Applicative[({type f[x] = Const[M, x]})#f] =
     new Applicative[({type f[x] = Const[M, x]})#f] {
       override def unit[A](a: => A): M = M.zero
 
