@@ -13,7 +13,7 @@ class BitonicTour {
       } else if (!optimalSubSolutions.contains(number)) {
         sub(points.tail, number - 1)  // solve it without first point
         val (forth, back) = optimalSubSolutions(number - 1)
-        if (distance(points.head, forth.head) > distance(points.head, back.head)) {
+        if (distance(points.head, forth.head) < distance(points.head, back.head)) {
           optimalSubSolutions.update(number, (points.head +: forth.tail) → back)
         } else {
           optimalSubSolutions.update(number, forth → (points.head +: back.tail))
@@ -22,7 +22,7 @@ class BitonicTour {
     }
     sub(points, points.size)
     val (forth, back) = optimalSubSolutions(points.size - 1)
-    forth ++ back
+    forth ++ back.reverse.tail
   }
 
   def distance(p1: (Int, Int), p2: (Int, Int)): Double = {
