@@ -111,23 +111,25 @@ class LongestPalindrome {
     all(0 → (in.length -1) )
   }
 
+  //Running time:  I would say N^2, as soon as to populate 1 entry, I need O(1), and I need to populate each entry only once.
+  //Space complexity: n*n
   private def longestPalindrome(s: Int, e: Int, in: String): Unit = {
-    if (s == e && !all.contains(s → e)) all put (s → e, in.substring(s, e + 1))
+    if (s == e && !all.contains(s → e)) all put (s → e, in.substring(s, e + 1))   // O(1)
     else {
-      val h: String = in.charAt(s).toString
+      val h: String = in.charAt(s).toString                                       //O(1)
       val l: String = in.charAt(e).toString
       if (h == l) {
         if (!all.contains((s + 1) → (e - 1))) {
-          longestPalindrome(s + 1, e - 1, in)
+          longestPalindrome(s + 1, e - 1, in)                                     // O(x)
         }
-        all put (s → e, h + all((s + 1) → (e - 1)) + l)
+        all put (s → e, h + all((s + 1) → (e - 1)) + l)                              //O(1)
       }
       else {
         if (!all.contains((s + 1) → e)) {
-          longestPalindrome(s + 1, e, in)
+          longestPalindrome(s + 1, e, in)                                            //O(x)
         }
         if (!all.contains(s → (e - 1))) {
-          longestPalindrome(s, e - 1, in)
+          longestPalindrome(s, e - 1, in)                                             //O(x)
         }
         all put (s → e, LongestPalindrome.max(all((s + 1) → e), all(s, e - 1)))
       }
