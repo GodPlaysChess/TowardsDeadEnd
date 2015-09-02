@@ -18,10 +18,10 @@ class BitonicTour {
       } else if (!optimalSubSolutions.contains(pointsLeft)) { //const
         sub(points.tail)  // solve it without first point o(x)
         val (forth, back) = optimalSubSolutions(pointsLeft - 1) // the first point should belong to both sequences
-        if (distancesCondition(points.head, forth.head, back.tail.head, forth.tail.head)) { // const
-          optimalSubSolutions.update(pointsLeft, (points.head +: forth) → (points.head +: back.tail)) // const
+        if (distancesCondition(points.head, forth.head, forth.tail.head, back.tail.head)) { // const
+          optimalSubSolutions.update(pointsLeft, (points.head +: forth.tail) → (points.head +: back)) // const
         } else {
-          optimalSubSolutions.update(pointsLeft, (points.head +: forth.tail) → (points.head +: back))         //const
+          optimalSubSolutions.update(pointsLeft, (points.head +: forth) → (points.head +: back.tail))         //const
         }
       }
     }
@@ -30,12 +30,12 @@ class BitonicTour {
     forth ++ back.reverse.tail
   }
 
-  def distancesCondition (p1: (Int, Int), p2: (Int, Int), p3: (Int, Int), p4: (Int, Int)): Boolean = {
-    distance(p1, p3) + distance(p2, p4) < distance(p1, p4) + distance(p2, p3)
+  def distancesCondition (newPoint: (Int, Int), oldHead: (Int, Int), firstForth: (Int, Int), firstBack: (Int, Int)): Boolean = {
+    distance(newPoint, firstForth) + distance(oldHead, firstBack) < distance(newPoint, firstBack) + distance(oldHead, firstForth)
   }
 
   def distance(p1: (Int, Int), p2: (Int, Int)): Double = {
-    Math.hypot(p1._1 - p2._1, p1._1 - p2._2)
+    Math.hypot(p1._1 - p2._1, p1._2 - p2._2)
   }
   
   def length(path: Seq[(Int, Int)]): Double = {
@@ -46,7 +46,7 @@ class BitonicTour {
 
 object BionicTour {
   def main(args: Array[String]) {
-    val input = Vector(1 → 1, 2 → 7, 3 → 4, 6 → 2, 7 → 6, 8 → 2, 9 → 5)
+    val input = Vector(1 → 1, 2 → 7, 3 → 4, 6 → 3, 7 → 6, 8 → 2, 9 → 5)
     val BT = new BitonicTour()
     val sol = BT.shortestPath(input)
     println(sol)
