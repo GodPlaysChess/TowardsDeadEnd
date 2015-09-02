@@ -10,6 +10,7 @@ class BitonicTour {
   // DO implementation which takes O(n^2) time
   // we have N^2 recursions each of which takes const time
   def shortestPath(points: IndexedSeq[(Int,Int)]): Seq[(Int, Int)] = {
+    // sort is omitted here
     def sub(points: IndexedSeq[(Int, Int)]): Unit = {
       val pointsLeft = points.size  // const
       if (pointsLeft == 2) {
