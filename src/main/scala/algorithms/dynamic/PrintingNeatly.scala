@@ -23,7 +23,7 @@ class PrintingNeatly {
   * */
 
 
-  val solution: Seq[Seq[String]] = Seq.empty
+  val solution: scala.collection.mutable.Map[Int, Seq[Seq[String]]] = scala.collection.mutable.Map.empty
 
 
   def printingNeatly(words: IndexedSeq[String], length: Int): Seq[Seq[String]] = {
@@ -33,8 +33,24 @@ class PrintingNeatly {
     }
   }
 
-  def sub(words: IndexedSeq[String], length: Int): Unit = {
+  def sub(words: IndexedSeq[String], wordNum: Int, lineSize: Int): Unit = {
+    if (wordNum <= words.size) {
+      val word = words(wordNum)
+      if (!solution.contains(wordNum - 1)) sub(words, wordNum - 1, lineSize) // fill the subproblem solution
+      val lastLine = solution(wordNum - 1).last
+      if (word.length < spaceLeft(lastLine, lineSize)) {
+        // just append the word to the end of the last string
+        solution.put(wordNum, solution(wordNum - 1) map (_ :+ word))
+      } else {
+        // if it does not fit, do regrouping based on point criterion
+        val veryLastLine = Seq(word)
+        val lastLine = solution(wordNum - 1).last
+        val previousLine = solution(wordNum - 1).init.last
 
+        val rearrangedSolution: Seq[Seq[String]] = ???
+        solution.put(wordNum, rearrangedSolution)
+      }
+    }
   }
 
   def points(words: Seq[Seq[String]], lineSize: Int): Double = {
