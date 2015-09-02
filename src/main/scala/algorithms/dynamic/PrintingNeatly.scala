@@ -27,10 +27,7 @@ class PrintingNeatly {
 
 
   def printingNeatly(words: IndexedSeq[String], length: Int): Seq[Seq[String]] = {
-    if (words.foldLeft(0)(_ + _.length) < length) Seq(words)  // if the rest fits on one line
-    else {
-      solution.last
-    }
+    ???
   }
 
   def sub(words: IndexedSeq[String], wordNum: Int, lineSize: Int): Unit = {
