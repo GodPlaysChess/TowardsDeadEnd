@@ -10,7 +10,16 @@ class PrintingNeatly {
   Some thoughts about the algorithm:
   Best solution for N-word sequence is the Best solution for N-1 word sequence +
     1) if it is still fit on the last line - then put it there
-    2) if it does not fit, then we rearrange the words somehow.
+    2) if it does not fit, then we rearrange the words somehow
+      so we have to put them on the new line (n), and may be shift a word from (n - 2) -> (n - 1)
+
+      AS an example consider          (length is 10)
+      3 3 4
+      5
+      7 2
+
+      When 7 is added and does not fit, we must shift 4 to the next line.
+      Essentially it happens, because nth line becomes n-1th line, and suddenly begins to add a score
   * */
 
 
