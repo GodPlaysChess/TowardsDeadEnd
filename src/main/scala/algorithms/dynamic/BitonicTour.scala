@@ -6,19 +6,22 @@ class BitonicTour {
   val optimalSubSolutions: scala.collection.mutable.Map[Int, (Seq[(Int, Int)], Seq[(Int, Int)])] = new scala.collection.mutable.HashMap
   // burteforce solution takes O(2^n)  (the task required to split seq into two, and there's 2^n-1 combinations of doing so)
 
+
+  // DO implementation which takes O(n^2) time
+  // we have N^2 recursions each of which takes const time
   def shortestPath(points: IndexedSeq[(Int,Int)]): Seq[(Int, Int)] = {
     def sub(points: IndexedSeq[(Int, Int)]): Unit = {
-      val pointsLeft = points.size
+      val pointsLeft = points.size  // const
       if (pointsLeft == 2) {
         val path = Seq(points.head, points(1))
-        optimalSubSolutions.update(2, path → path)
-      } else if (!optimalSubSolutions.contains(pointsLeft)) {
-        sub(points.tail)  // solve it without first point
+        optimalSubSolutions.update(2, path → path)  // const
+      } else if (!optimalSubSolutions.contains(pointsLeft)) { //const
+        sub(points.tail)  // solve it without first point o(x)
         val (forth, back) = optimalSubSolutions(pointsLeft - 1) // the first point should belong to both sequences
-        if (distancesCondition(points.head, forth.head, back.tail.head, forth.tail.head)) {
-          optimalSubSolutions.update(pointsLeft, (points.head +: forth) → (points.head +: back.tail))
+        if (distancesCondition(points.head, forth.head, back.tail.head, forth.tail.head)) { // const
+          optimalSubSolutions.update(pointsLeft, (points.head +: forth) → (points.head +: back.tail)) // const
         } else {
-          optimalSubSolutions.update(pointsLeft, (points.head +: forth.tail) → (points.head +: back))
+          optimalSubSolutions.update(pointsLeft, (points.head +: forth.tail) → (points.head +: back))         //const
         }
       }
     }
